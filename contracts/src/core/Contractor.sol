@@ -4,6 +4,7 @@ pragma solidity ^0.8.20;
 import "../interfaces/IERC20.sol";
 import "../types/Enum.sol";
 import "../types/Struct.sol";
+
 contract Procurement {
     address owner;
     address tokenAddress;
@@ -48,12 +49,9 @@ contract Procurement {
         newProject.startDate = _startdate;
         newProject.endDate = _endate;
         newProject.imageCid = " ";
-
         //mapp contractors address to the project assigned
         contractorProjects[_contractorAddress].push(projectId);
-
         // mapp contractor to agency
-
         agency_Contractor[msg.sender] = _contractorAddress;
 
         emit CreateProject(
@@ -63,5 +61,22 @@ contract Procurement {
             msg.sender
         );
         projectId++;
+    }
+
+    function SubmitProject(
+        uint _projectId,
+        string memory projectDescription,
+        string memory imgCid
+    ) external {
+        // Get the Project and update the value
+        Project storage project = projects[_projectId];
+
+        project.description = projectDescription;
+        project.imageCid = imgCid;
+
+        // create a project to
+
+        projectsubmited[msg.sender].push(_projectId);
+        emit SubmitedProject(projectId, projectDescription, imgCid, msg.sender);
     }
 }
