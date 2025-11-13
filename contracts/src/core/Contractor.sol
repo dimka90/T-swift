@@ -79,4 +79,22 @@ contract Procurement {
         projectsubmited[msg.sender].push(_projectId);
         emit SubmitedProject(projectId, projectDescription, imgCid, msg.sender);
     }
+
+
+    function SubmitProject(
+        uint _projectId,
+        string memory projectDescription,
+        string memory imgCid
+    ) external {
+        // Get the Project and update the value
+        Project storage project = projects[_projectId];
+
+        project.description = projectDescription;
+        project.imageCid = imgCid;
+
+        // create a project to
+
+        projectsubmited[msg.sender].push(_projectId);
+        emit SubmitedProject(projectId, projectDescription, imgCid, msg.sender);
+    }
 }
