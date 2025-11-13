@@ -22,7 +22,8 @@ contract Procurement {
 
     Contractor[] public contractors;
     uint milestoneId;
-
+    uint projectId = 1;
+    
     function createProject(
         string memory _description,
         uint256 _budget,
@@ -81,20 +82,4 @@ contract Procurement {
     }
 
 
-    function SubmitProject(
-        uint _projectId,
-        string memory projectDescription,
-        string memory imgCid
-    ) external {
-        // Get the Project and update the value
-        Project storage project = projects[_projectId];
-
-        project.description = projectDescription;
-        project.imageCid = imgCid;
-
-        // create a project to
-
-        projectsubmited[msg.sender].push(_projectId);
-        emit SubmitedProject(projectId, projectDescription, imgCid, msg.sender);
-    }
 }
