@@ -1,7 +1,7 @@
 //SPDX-License-identifier: MIT
 
 pragma solidity ^0.8.20;
-import "../interfaces/IERC20.sol";
+import "../interfaces/ITOKEN.sol";
 import "../types/Enum.sol";
 import "../types/Struct.sol";
 
@@ -31,7 +31,7 @@ contract Procurement {
         uint _startdate,
         uint _endate
     ) external {
-        uint256 allowance = IERC20(tokenAddress).allowance(
+        uint256 allowance = ITOKEN(tokenAddress).allowance(
             msg.sender,
             address(this)
         );
@@ -39,7 +39,7 @@ contract Procurement {
             _budget <= allowance,
             "No allowance to spend funds at the moment"
         );
-        IERC20(tokenAddress).transferFrom(msg.sender, address(this), _budget);
+        ITOKEN(tokenAddress).transferFrom(msg.sender, address(this), _budget);
         // Create a new project for a Contractor
         Project storage newProject = projects[projectId];
         newProject.projectId = projectId;
