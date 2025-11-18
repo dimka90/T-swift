@@ -93,7 +93,6 @@ contract Procurement {
         for (uint i; i < projectlen; i++) {
             project[i] = projects[number[i]];
         }
-
         return project;
     }
 }
