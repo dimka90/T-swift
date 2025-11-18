@@ -23,7 +23,7 @@ contract Procurement {
     Contractor[] public contractors;
     uint milestoneId;
     uint projectId = 1;
-    
+
     function createProject(
         string memory _description,
         uint256 _budget,
@@ -81,5 +81,19 @@ contract Procurement {
         emit SubmitedProject(projectId, projectDescription, imgCid, msg.sender);
     }
 
+    function getSubmittedProject(
+        address contractOwner
+    ) external view returns (Project[] memory) {
+        uint[] memory number = projectsubmited[
+            agency_Contractor[contractOwner]
+        ];
+        uint projectlen = number.length;
+        Project[] memory project = new Project[](projectlen);
 
+        for (uint i; i < projectlen; i++) {
+            project[i] = projects[number[i]];
+        }
+
+        return project;
+    }
 }
