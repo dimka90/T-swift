@@ -124,4 +124,18 @@ contract Procurement {
         );
         emit CreateContractor(_companyName, msg.sender, _registrationNumber);
     }
+
+    function RejectMilestones(uint _milestoneId, uint _projectId, address contractorAddress) external returns(bool)
+    {
+        RejectedMileStone[] storage milstonesRejected = rejectedMilestones[contractorAddress];
+        milstonesRejected.push(
+            RejectedMileStone({
+                projectId: _projectId,
+                milestoneId: _milestoneId,
+                contractor: contractorAddress
+                }));
+
+                return true;
+
+ }
 }
