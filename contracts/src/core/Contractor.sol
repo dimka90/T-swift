@@ -95,4 +95,33 @@ contract Procurement {
         }
         return project;
     }
+
+    function createContractor(
+        string memory _companyName,
+        uint _registrationNumber,
+        uint _taxIdenticationNumber,
+        string memory _physicalAddress,
+        string memory _addressImageCid,
+        string memory _companyUploadedCid
+    ) external {
+        // work on this
+        require(
+            contractor[_registrationNumber].registrationNumber !=
+                _registrationNumber,
+            "Contractor already exist"
+        );
+        // validate the user address
+        contractors.push(
+            Contractor({
+                companyName: _companyName,
+                registrationNumber: _registrationNumber,
+                taxIdenticationNumber: _taxIdenticationNumber,
+                physicalAddress: _physicalAddress,
+                owner: msg.sender,
+                addressImageCid: _addressImageCid,
+                companyUploadedCid: _companyUploadedCid
+            })
+        );
+        emit CreateContractor(_companyName, msg.sender, _registrationNumber);
+    }
 }
