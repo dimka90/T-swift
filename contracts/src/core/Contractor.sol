@@ -142,4 +142,26 @@ contract Procurement {
 {
     return  contractors;
 }
+
+function getContractor(address _contractorAddress) external view  returns(Contractor memory ){
+    require(_contractorAddress != address(0), "Address can't be zero");
+    require(contractors.length>0, "No Contractor Onboard");
+    for (uint i; i<contractors.length; i++){
+
+        if (contractors[i].owner == _contractorAddress){
+            return contractors[i];
+        }
+
+    }
+    // Contractor not found
+    return Contractor({
+        companyName: "",
+        registrationNumber: 0,
+        taxIdenticationNumber: 0,
+        physicalAddress: "",
+        owner: address(0),
+        addressImageCid: "",
+        companyUploadedCid: ""
+    });
+}
 }
