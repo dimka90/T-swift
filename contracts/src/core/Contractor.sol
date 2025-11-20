@@ -138,4 +138,8 @@ contract Procurement {
                 return true;
 
  }
+ function getAllContractors() external view returns(Contractor[] memory) 
+{
+    return  contractors;
+}
 }
