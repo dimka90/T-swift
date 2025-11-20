@@ -125,43 +125,55 @@ contract Procurement {
         emit CreateContractor(_companyName, msg.sender, _registrationNumber);
     }
 
-    function RejectMilestones(uint _milestoneId, uint _projectId, address contractorAddress) external returns(bool)
-    {
-        RejectedMileStone[] storage milstonesRejected = rejectedMilestones[contractorAddress];
+    function RejectMilestones(
+        uint _milestoneId,
+        uint _projectId,
+        address contractorAddress
+    ) external returns (bool) {
+        RejectedMileStone[] storage milstonesRejected = rejectedMilestones[
+            contractorAddress
+        ];
         milstonesRejected.push(
             RejectedMileStone({
                 projectId: _projectId,
                 milestoneId: _milestoneId,
                 contractor: contractorAddress
-                }));
+            })
+        );
 
-                return true;
-
- }
- function getAllContractors() external view returns(Contractor[] memory) 
-{
-    return  contractors;
-}
-
-function getContractor(address _contractorAddress) external view  returns(Contractor memory ){
-    require(_contractorAddress != address(0), "Address can't be zero");
-    require(contractors.length>0, "No Contractor Onboard");
-    for (uint i; i<contractors.length; i++){
-
-        if (contractors[i].owner == _contractorAddress){
-            return contractors[i];
-        }
-
+        return true;
     }
-    // Contractor not found
-    return Contractor({
-        companyName: "",
-        registrationNumber: 0,
-        taxIdenticationNumber: 0,
-        physicalAddress: "",
-        owner: address(0),
-        addressImageCid: "",
-        companyUploadedCid: ""
-    });
-}
+
+    function getAllContractors() external view returns (Contractor[] memory) {
+        return contractors;
+    }
+
+    function getContractor(
+        address _contractorAddress
+    ) external view returns (Contractor memory) {
+        require(_contractorAddress != address(0), "Address can't be zero");
+        require(contractors.length > 0, "No Contractor Onboard");
+        for (uint i; i < contractors.length; i++) {
+            if (contractors[i].owner == _contractorAddress) {
+                return contractors[i];
+            }
+        }
+        // Contractor not found
+        return
+            Contractor({
+                companyName: "",
+                registrationNumber: 0,
+                taxIdenticationNumber: 0,
+                physicalAddress: "",
+                owner: address(0),
+                addressImageCid: "",
+                companyUploadedCid: ""
+            });
+    }
+
+    function getProject(
+        uint _projectId
+    ) external view returns (Project memory) {
+        return projects[_projectId];
+    }
 }
