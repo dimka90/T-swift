@@ -176,4 +176,14 @@ contract Procurement {
     ) external view returns (Project memory) {
         return projects[_projectId];
     }
+
+    function getRejectedProject(
+        address _contractorAddress
+    ) external view returns (RejectedMileStone[] memory) {
+        return rejectedMilestones[_contractorAddress];
+    }
+
+    // Government agency
+
+    function createAgency() external {}
 }
