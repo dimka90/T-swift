@@ -1,8 +1,29 @@
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAppKitAccount } from "@reown/appkit/react";
+import { toast } from "react-toastify";
 import { CiSearch } from "react-icons/ci";
 import { MdFilterList } from "react-icons/md";
 import { IoMdArrowDown } from "react-icons/io";
 
 function Payment() {
+  const navigate = useNavigate();
+  const { isConnected } = useAppKitAccount();
+
+  useEffect(() => {
+    if (!isConnected) {
+      toast.error("Please connect your wallet to view payment history", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+      navigate("/");
+    }
+  }, [isConnected, navigate]);
+
+  if (!isConnected) {
+    return null;
+  }
+
   return (
     <div className="bg-white rounded-3xl  p-7 h-screen">
       <h3 className="text-[20px] font-semibold mb-10">Payment History</h3>
