@@ -72,103 +72,102 @@ const AssignContract = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-50 p-4">
-      <div className="bg-white shadow-md rounded-lg p-6 max-w-md w-full">
-        <h1 className="text-2xl font-semibold text-center text-gray-800 mb-6">
-          Assign a Contract
-        </h1>
-        <form onSubmit={handleSubmit(onSubmit)}>
+    <div className="w-full">
+      <form onSubmit={handleSubmit(onSubmit)}>
           
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700">Description</label>
+          <div className="mb-5">
+            <label className="block text-sm font-semibold text-gray-200 mb-2">Project Description</label>
             <input
               type="text"
               {...register("description", { required: "Description is required" })}
-              placeholder="Enter contract description"
-              className={`mt-1 p-2 block w-full rounded-md border ${
-                errors.description ? "border-red-500" : "border-gray-300"
-              } focus:ring-indigo-500 focus:border-indigo-500`}
+              placeholder="Enter project description"
+              className={`w-full px-4 py-2 bg-slate-700 border rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 transition ${
+                errors.description ? "border-red-500" : "border-slate-600"
+              }`}
             />
             {errors.description && (
-              <p className="mt-1 text-sm text-red-500">{errors.description.message}</p>
+              <p className="mt-1 text-sm text-red-400">{errors.description.message}</p>
             )}
           </div>
 
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700">Budget</label>
+          <div className="mb-5">
+            <label className="block text-sm font-semibold text-gray-200 mb-2">Budget (in tokens)</label>
             <input
               type="number"
               {...register("budget", { required: "Budget is required", min: 1 })}
-              placeholder="Enter budget"
-              className={`mt-1 p-2 block w-full rounded-md border ${
-                errors.budget ? "border-red-500" : "border-gray-300"
-              } focus:ring-indigo-500 focus:border-indigo-500`}
+              placeholder="Enter budget amount"
+              className={`w-full px-4 py-2 bg-slate-700 border rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 transition ${
+                errors.budget ? "border-red-500" : "border-slate-600"
+              }`}
             />
             {errors.budget && (
-              <p className="mt-1 text-sm text-red-500">{errors.budget.message}</p>
+              <p className="mt-1 text-sm text-red-400">{errors.budget.message}</p>
             )}
           </div>
 
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700">Contractor Address</label>
+          <div className="mb-5">
+            <label className="block text-sm font-semibold text-gray-200 mb-2">Contractor Address</label>
             <input
               type="text"
               {...register("contractorAddress", { required: "Contractor address is required" })}
-              placeholder="Enter contractor address"
-              className={`mt-1 p-2 block w-full rounded-md border ${
-                errors.contractorAddress ? "border-red-500" : "border-gray-300"
-              } focus:ring-indigo-500 focus:border-indigo-500`}
+              placeholder="0x..."
+              className={`w-full px-4 py-2 bg-slate-700 border rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 transition font-mono text-sm ${
+                errors.contractorAddress ? "border-red-500" : "border-slate-600"
+              }`}
             />
             {errors.contractorAddress && (
-              <p className="mt-1 text-sm text-red-500">{errors.contractorAddress.message}</p>
+              <p className="mt-1 text-sm text-red-400">{errors.contractorAddress.message}</p>
             )}
           </div>
 
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700">Start Date</label>
-            <input
-              type="date"
-              {...register("startDate", { required: "Start date is required" })}
-              className={`mt-1 p-2 block w-full rounded-md border ${
-                errors.startDate ? "border-red-500" : "border-gray-300"
-              } focus:ring-indigo-500 focus:border-indigo-500`}
-            />
-            {errors.startDate && (
-              <p className="mt-1 text-sm text-red-500">{errors.startDate.message}</p>
-            )}
-          </div>
-
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700">End Date</label>
-            <input
-              type="date"
-              {...register("endDate", { required: "End date is required" })}
-              className={`mt-1 p-2 block w-full rounded-md border ${
-                errors.endDate ? "border-red-500" : "border-gray-300"
-              } focus:ring-indigo-500 focus:border-indigo-500`}
-            />
-            {errors.endDate && (
-              <p className="mt-1 text-sm text-red-500">{errors.endDate.message}</p>
-            )}
+          <div className="grid grid-cols-2 gap-4 mb-5">
+            <div>
+              <label className="block text-sm font-semibold text-gray-200 mb-2">Start Date</label>
+              <input
+                type="date"
+                {...register("startDate", { required: "Start date is required" })}
+                className={`w-full px-4 py-2 bg-slate-700 border rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-green-500 transition ${
+                  errors.startDate ? "border-red-500" : "border-slate-600"
+                }`}
+              />
+              {errors.startDate && (
+                <p className="mt-1 text-sm text-red-400">{errors.startDate.message}</p>
+              )}
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-gray-200 mb-2">End Date</label>
+              <input
+                type="date"
+                {...register("endDate", { required: "End date is required" })}
+                className={`w-full px-4 py-2 bg-slate-700 border rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-green-500 transition ${
+                  errors.endDate ? "border-red-500" : "border-slate-600"
+                }`}
+              />
+              {errors.endDate && (
+                <p className="mt-1 text-sm text-red-400">{errors.endDate.message}</p>
+              )}
+            </div>
           </div>
 
           <button
             type="submit"
-            className="w-full bg-indigo-600 text-white py-2 rounded-md hover:bg-indigo-700 flex items-center justify-center transition duration-300"
-            // disabled={loading || isWriting || isConfirming}
+            className="w-full bg-gradient-to-r from-green-600 to-green-700 text-white font-semibold py-3 rounded-lg hover:from-green-700 hover:to-green-800 flex items-center justify-center gap-2 transition duration-300 shadow-lg hover:shadow-xl"
+            disabled={loading || isWriting || isConfirming}
           >
             {loading || isWriting || isConfirming ? (
-              <div className="loader border-4 border-t-4 border-white rounded-full w-5 h-5 animate-spin"></div>
+              <>
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                Processing...
+              </>
             ) : (
-              "Assign Contract"
+              "Create Project"
             )}
           </button>
-        </form>
 
-        {isConfirming && <p className="mt-4 text-yellow-500">Transaction confirming...</p>}
-        {isConfirmed && <p className="mt-4 text-green-500">Transaction confirmed!</p>}
-        {error && <p className="mt-4 text-red-500">{error.message}</p>}
-      </div>
+          {isConfirming && <p className="mt-4 text-center text-yellow-400 font-medium">⏳ Transaction confirming...</p>}
+          {isConfirmed && <p className="mt-4 text-center text-green-400 font-medium">✓ Transaction confirmed!</p>}
+          {error && <p className="mt-4 text-center text-red-400 font-medium">✕ {error.message}</p>}
+        </form>
       <ToastContainer />
     </div>
   );
