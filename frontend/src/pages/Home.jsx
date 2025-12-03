@@ -4,7 +4,6 @@ import { useNavigate } from "react-router-dom";
 import { useAppKitAccount } from "@reown/appkit/react";
 import { FiArrowRight, FiTrendingUp, FiShield, FiUsers, FiZap } from "react-icons/fi";
 import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
 
 function Home() {
   const navigate = useNavigate();
@@ -173,8 +172,6 @@ function Home() {
           </button>
         </div>
       </section>
-
-      <Footer />
 
       <style jsx>{`
         @keyframes blob {
