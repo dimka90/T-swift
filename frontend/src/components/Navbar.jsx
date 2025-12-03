@@ -93,26 +93,26 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="bg-white top-0 z-50 w-full md:w-full fixed">
+    <nav className="bg-gradient-to-r from-slate-950 to-slate-900 top-0 z-50 w-full md:w-full fixed border-b border-slate-800">
       <div className="container mx-auto px-4 py-5 flex justify-between items-center">
         <Link to="/" className='ml-28 flex flex-col items-center'>
           <div className="flex items-center w-7" >
             <img src={Logo} alt="Logo" className="" />
           </div>
-          <h2 className='text-green-600 font-bold text-xl'>TswiFt</h2>
+          <h2 className='text-green-400 font-bold text-xl'>TswiFt</h2>
         </Link>
-        <ul className="hidden md:flex space-x-8 text-base text-[#18191F]">
+        <ul className="hidden md:flex space-x-8 text-base text-gray-300">
           <Link to="/">
-            <li className="hover:text-slate-950 cursor-pointer hover:underline">Services</li>
+            <li className="hover:text-green-400 cursor-pointer hover:underline transition-colors">Services</li>
           </Link>
           <li
-            className="hover:text-slate-950 cursor-pointer hover:underline"
+            className="hover:text-green-400 cursor-pointer hover:underline transition-colors"
             onClick={handleScrollToMission}
           >
             About
           </li>
           <Link to="">
-            <li className="hover:text-slate-950 cursor-pointer hover:underline">FAQ</li>
+            <li className="hover:text-green-400 cursor-pointer hover:underline transition-colors">FAQ</li>
           </Link>
         </ul>
         <button
@@ -124,7 +124,7 @@ const Navbar = () => {
             : 'Connect Wallet'}
         </button>
         <div
-          className="md:hidden text-2xl cursor-pointer"
+          className="md:hidden text-2xl cursor-pointer text-gray-300"
           onClick={toggleMobileMenu}
         >
           {isMobileMenuOpen ? <AiOutlineClose /> : <AiOutlineMenu />}
@@ -132,16 +132,16 @@ const Navbar = () => {
       </div>
 
       {isMobileMenuOpen && (
-        <div className="md:hidden bg-white shadow-lg">
-          <ul className="flex flex-col items-center space-y-4 py-4 text-lg font-medium">
-            <li className="hover:text-green-500 cursor-pointer">Services</li>
+        <div className="md:hidden bg-slate-900 shadow-lg border-t border-slate-800">
+          <ul className="flex flex-col items-center space-y-4 py-4 text-lg font-medium text-gray-300">
+            <li className="hover:text-green-400 cursor-pointer transition-colors">Services</li>
             <li
-              className="hover:text-green-500 cursor-pointer"
+              className="hover:text-green-400 cursor-pointer transition-colors"
               onClick={handleScrollToMission}
             >
               About
             </li>
-            <li className="hover:text-green-500 cursor-pointer">FAQ</li>
+            <li className="hover:text-green-400 cursor-pointer transition-colors">FAQ</li>
             <li></li>
           </ul>
         </div>
