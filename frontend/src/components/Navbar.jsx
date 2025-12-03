@@ -60,7 +60,7 @@ import React, { useState } from 'react';
 import { AiOutlineMenu, AiOutlineClose } from 'react-icons/ai';
 import Logo from "../assets/Logo.png"
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { ConnectButton } from '@rainbow-me/rainbowkit';
+import { appKit } from '../wagmi';
 
 const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -113,7 +113,12 @@ const Navbar = () => {
             <li className="hover:text-slate-950 cursor-pointer hover:underline">FAQ</li>
           </Link>
         </ul>
-        <ConnectButton />
+        <button
+          onClick={() => appKit.open()}
+          className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
+        >
+          Connect Wallet
+        </button>
         <div
           className="md:hidden text-2xl cursor-pointer"
           onClick={toggleMobileMenu}

@@ -1,4 +1,5 @@
-import { getDefaultConfig } from '@rainbow-me/rainbowkit';
+import { createAppKit } from '@reown/appkit';
+import { WagmiAdapter } from '@reown/appkit-adapter-wagmi';
 import {
   arbitrum,
   base,
@@ -8,41 +9,60 @@ import {
   sepolia,
 } from 'wagmi/chains';
 
+declare global {
+  interface ImportMeta {
+    env: Record<string, string>;
+  }
+}
 
 const lisk = {
-    id: 4202, // Unique chain ID
-    name: 'Lisk Sepolia Testnet',
-    network: 'lisk-testnet',
-    nativeCurrency: {
-      name: 'Lisk',
-      symbol: 'LSK',
-      decimals: 18,
+  id: 4202,
+  name: 'Lisk Sepolia Testnet',
+  network: 'lisk-testnet',
+  nativeCurrency: {
+    name: 'Lisk',
+    symbol: 'LSK',
+    decimals: 18,
+  },
+  rpcUrls: {
+    default: {
+      http: ['https://rpc.sepolia-api.lisk.com/'],
     },
-    rpcUrls: {
-      default: {
-        http: ['https://rpc.sepolia-api.lisk.com/'], // Replace with actual Lisk Testnet RPC URL
-      },
-      public: {
-        http: ['https://rpc.sepolia-api.lisk.com/'],
-      },
+    public: {
+      http: ['https://rpc.sepolia-api.lisk.com/'],
     },
-    blockExplorers: {
-      default: { name: 'Lisk Explorer', url: 'https://sepolia-blockscout.lisk.com/' },
-    },
-    testnet: true,
-  };
-  
+  },
+  blockExplorers: {
+    default: { name: 'Lisk Explorer', url: 'https://sepolia-blockscout.lisk.com/' },
+  },
+  testnet: true,
+};
 
-export const config = getDefaultConfig({
-  appName: 'RainbowKit demo',
-  projectId: 'f6944e67672a59c2ac32f0ec4777dfd8',
-  chains: [
-    mainnet,
-    polygon,
-    optimism,
-    arbitrum,
-    base,
-    sepolia,
-    lisk
-  ],
+// Get your own Project ID from https://dashboard.reown.com/
+const projectId = (import.meta.env.VITE_APPKIT_PROJECT_ID as string) || '';
+
+const metadata = {
+  name: 'Tswift',
+  description: 'Decentralized Procurement Management System',
+  url: 'http://localhost:5173',
+  icons: ['https://avatars.githubusercontent.com/u/37784886'],
+};
+
+const chains = [mainnet, polygon, optimism, arbitrum, base, sepolia, lisk];
+
+const wagmiAdapter = new WagmiAdapter({
+  networks: chains as any,
+  projectId,
 });
+
+export const appKit = createAppKit({
+  adapters: [wagmiAdapter],
+  networks: chains as any,
+  projectId,
+  metadata,
+  features: {
+    analytics: true,
+  },
+});
+
+export const config = wagmiAdapter.wagmiConfig;
