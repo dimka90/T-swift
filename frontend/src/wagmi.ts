@@ -1,5 +1,6 @@
 import { createAppKit } from '@reown/appkit';
 import { WagmiAdapter } from '@reown/appkit-adapter-wagmi';
+import { injected } from '@wagmi/connectors';
 import {
   arbitrum,
   base,
@@ -53,6 +54,11 @@ const chains = [mainnet, polygon, optimism, arbitrum, base, sepolia, lisk];
 const wagmiAdapter = new WagmiAdapter({
   networks: chains as any,
   projectId,
+  connectors: [
+    injected({
+      shimDisconnect: true,
+    }),
+  ],
 });
 
 export const appKit = createAppKit({
