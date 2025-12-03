@@ -61,11 +61,13 @@ import { AiOutlineMenu, AiOutlineClose } from 'react-icons/ai';
 import Logo from "../assets/Logo.png"
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { appKit } from '../wagmi';
+import { useAccount } from 'wagmi';
 
 const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
+  const { address, isConnected } = useAccount();
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
@@ -115,9 +117,11 @@ const Navbar = () => {
         </ul>
         <button
           onClick={() => appKit.open()}
-          className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
+          className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-medium"
         >
-          Connect Wallet
+          {isConnected && address
+            ? `${address.slice(0, 6)}...${address.slice(-4)}`
+            : 'Connect Wallet'}
         </button>
         <div
           className="md:hidden text-2xl cursor-pointer"
