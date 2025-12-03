@@ -13,10 +13,14 @@ contract ContractorTest is Test {
     address public contractorAddress = address(0x2);
 
     function setUp() public {
-        procurement = new Procurement();
-
-        // Deploy mock ERC20
+        // Deploy mock ERC20 first
         token = new MockERC20();
+
+        // Deploy Procurement with token address
+        procurement = new Procurement(address(token));
+
+        // Mint tokens to agency
+        token.mint(agency, 1000 ether);
 
         // Agency approves
         vm.prank(agency);

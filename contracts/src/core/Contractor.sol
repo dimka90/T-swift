@@ -24,6 +24,11 @@ contract Procurement {
     uint milestoneId;
     uint projectId = 1;
 
+    constructor(address _tokenAddress) {
+        owner = msg.sender;
+        tokenAddress = _tokenAddress;
+    }
+
     function createProject(
         string memory _description,
         uint256 _budget,
