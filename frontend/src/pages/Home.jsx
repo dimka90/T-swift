@@ -2,17 +2,18 @@ import React, { useState } from "react";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom";
+import { useAppKitAccount } from "@reown/appkit/react";
 import image1 from "../assets/image5.png";
 import Footer from "../components/Footer";
 import Navbar from "../components/Navbar";
 import image2 from "../assets/pana.png";
 
 function Home() {
-  const [allowNavigation, setAllowNavigation] = useState(false); 
   const navigate = useNavigate();
+  const { isConnected } = useAppKitAccount();
 
   const handleButtonClick = (path) => {
-    if (!allowNavigation) {
+    if (!isConnected) {
       toast.error("Please connect your wallet to proceed!", {
         position: "top-right",
         autoClose: 3000,
@@ -22,7 +23,6 @@ function Home() {
         draggable: true,
         progress: undefined,
       });
-      setAllowNavigation(true); 
     } else {
       navigate(path); 
     }
