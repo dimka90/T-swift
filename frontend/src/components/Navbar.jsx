@@ -56,18 +56,18 @@
 // export default Navbar;
 
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AiOutlineMenu, AiOutlineClose } from 'react-icons/ai';
 import Logo from "../assets/Logo.png"
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { appKit } from '../wagmi';
-import { useAccount } from 'wagmi';
+import { useAppKitAccount } from '@reown/appkit/react';
 
 const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
-  const { address, isConnected } = useAccount();
+  const { address, isConnected } = useAppKitAccount();
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
