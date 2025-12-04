@@ -16,23 +16,25 @@ import AgencySideMenu from "./components/AgencySideMenu";
 
 function App() {
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route element={<Layout />}>
-          <Route path="/milestoneform" element={<MilestoneForm />}/>
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/projects" element={<Projects />} />
-          <Route path="/payment" element={<Payment />} />
-          <Route path="/agency-dashboard" element={<AgencyDashboard />} />
-          <Route path="/agency-payment" element={<AgencyPayment />} />
-          <Route path="/agency-projects" element={<AgencyProjects />} />
-          <Route path="/assigncontract" element={<AssignContract />} />
-          <Route path="/review" element={<ReviewMilestone />} />
-          <Route path="/agency-sidemenu" element={<AgencySideMenu />} />
-        </Route>
-      </Routes>
-    </Router>
+    <div style={{ minHeight: "100vh", backgroundColor: "#0f172a" }}>
+      <Router>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route element={<Layout />}>
+            <Route path="/milestoneform" element={<MilestoneForm />}/>
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/projects" element={<Projects />} />
+            <Route path="/payment" element={<Payment />} />
+            <Route path="/agency-dashboard" element={<AgencyDashboard />} />
+            <Route path="/agency-payment" element={<AgencyPayment />} />
+            <Route path="/agency-projects" element={<AgencyProjects />} />
+            <Route path="/assigncontract" element={<AssignContract />} />
+            <Route path="/review" element={<ReviewMilestone />} />
+            <Route path="/agency-sidemenu" element={<AgencySideMenu />} />
+          </Route>
+        </Routes>
+      </Router>
+    </div>
   );
 }
 
