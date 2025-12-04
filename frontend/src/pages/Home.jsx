@@ -1,5 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { useAppKitAccount } from "@reown/appkit/react";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import Navbar from "../components/Navbar";
 
 function Home() {
@@ -8,7 +10,14 @@ function Home() {
 
   const handleButtonClick = (path) => {
     if (!isConnected) {
-      alert("Please connect your wallet to proceed!");
+      toast.error("Please connect your wallet to proceed!", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
       return;
     }
     navigate(path);
@@ -39,6 +48,7 @@ function Home() {
 
   return (
     <div className="bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 min-h-screen">
+      <ToastContainer />
       <Navbar />
 
       {/* Hero Section */}

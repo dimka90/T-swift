@@ -92,59 +92,86 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="bg-gradient-to-r from-slate-950 to-slate-900 top-0 z-50 w-full md:w-full fixed border-b border-slate-800">
-      <div className="container mx-auto px-4 py-5 flex justify-between items-center">
-        <Link to="/" className='ml-28 flex flex-col items-center'>
-          <div className="flex items-center w-7" >
-            <img src={Logo} alt="Logo" className="" />
+    <nav className="bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950 top-0 z-50 w-full fixed border-b border-slate-700/50 backdrop-blur-sm shadow-lg">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+        {/* Logo */}
+        <Link to="/" className='flex items-center gap-2 hover:opacity-80 transition-opacity'>
+          <div className="flex items-center w-8 h-8 bg-gradient-to-br from-green-400 to-green-600 rounded-lg p-1">
+            <img src={Logo} alt="Logo" className="w-full h-full" />
           </div>
-          <h2 className='text-green-400 font-bold text-xl'>TswiFt</h2>
+          <h2 className='text-green-400 font-bold text-2xl hidden sm:block'>TswiFt</h2>
         </Link>
-        <ul className="hidden md:flex space-x-8 text-base text-gray-300">
+
+        {/* Desktop Menu */}
+        <ul className="hidden md:flex space-x-1 text-base text-gray-300">
           <Link to="/">
-            <li className="hover:text-green-400 cursor-pointer hover:underline transition-colors">Services</li>
+            <li className="px-3 py-2 rounded-lg hover:text-green-400 hover:bg-slate-800/50 cursor-pointer transition-all duration-200">Services</li>
           </Link>
           <li
-            className="hover:text-green-400 cursor-pointer hover:underline transition-colors"
+            className="px-3 py-2 rounded-lg hover:text-green-400 hover:bg-slate-800/50 cursor-pointer transition-all duration-200"
             onClick={handleScrollToMission}
           >
             About
           </li>
           <Link to="">
-            <li className="hover:text-green-400 cursor-pointer hover:underline transition-colors">FAQ</li>
+            <li className="px-3 py-2 rounded-lg hover:text-green-400 hover:bg-slate-800/50 cursor-pointer transition-all duration-200">FAQ</li>
           </Link>
         </ul>
+
+        {/* Connect Wallet Button */}
         <button
           onClick={() => appKit.open()}
-          className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-medium"
+          className="px-4 py-2 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg hover:from-green-600 hover:to-green-700 transition-all duration-200 font-medium text-sm shadow-lg hover:shadow-green-500/50"
         >
           {isConnected && address
             ? `${address.slice(0, 6)}...${address.slice(-4)}`
             : 'Connect Wallet'}
         </button>
+
+        {/* Mobile Menu Button */}
         <div
-          className="md:hidden text-2xl cursor-pointer text-gray-300"
+          className="md:hidden text-2xl cursor-pointer text-gray-300 hover:text-green-400 transition-colors"
           onClick={toggleMobileMenu}
         >
           {isMobileMenuOpen ? "✕" : "☰"}
         </div>
       </div>
 
+      {/* Mobile Menu */}
       {isMobileMenuOpen && (
-        <div className="md:hidden bg-slate-900 shadow-lg border-t border-slate-800">
-          <ul className="flex flex-col items-center space-y-4 py-4 text-lg font-medium text-gray-300">
-            <li className="hover:text-green-400 cursor-pointer transition-colors">Services</li>
+        <div className="md:hidden bg-slate-900/95 backdrop-blur-sm shadow-lg border-t border-slate-700/50 animate-fade-in">
+          <ul className="flex flex-col space-y-2 py-4 px-4 text-base font-medium text-gray-300">
+            <Link to="/">
+              <li className="px-3 py-2 rounded-lg hover:text-green-400 hover:bg-slate-800/50 cursor-pointer transition-all duration-200">Services</li>
+            </Link>
             <li
-              className="hover:text-green-400 cursor-pointer transition-colors"
+              className="px-3 py-2 rounded-lg hover:text-green-400 hover:bg-slate-800/50 cursor-pointer transition-all duration-200"
               onClick={handleScrollToMission}
             >
               About
             </li>
-            <li className="hover:text-green-400 cursor-pointer transition-colors">FAQ</li>
-            <li></li>
+            <Link to="">
+              <li className="px-3 py-2 rounded-lg hover:text-green-400 hover:bg-slate-800/50 cursor-pointer transition-all duration-200">FAQ</li>
+            </Link>
           </ul>
         </div>
       )}
+
+      <style jsx>{`
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+            transform: translateY(-10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        .animate-fade-in {
+          animation: fadeIn 0.2s ease-out;
+        }
+      `}</style>
     </nav>
   );
 };
