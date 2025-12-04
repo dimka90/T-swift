@@ -1,14 +1,13 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAppKitAccount } from "@reown/appkit/react";
 import { toast } from "react-toastify";
-import { FiPlus, FiBarChart3, FiCheckCircle, FiClock, FiAlertCircle } from "react-icons/fi";
+import { FiPlus, FiCheckCircle, FiClock, FiAlertCircle } from "react-icons/fi";
 import AssignContract from "./AssignContract"
 
 function AgencyDashboard(){
   const navigate = useNavigate();
   const { isConnected, address } = useAppKitAccount();
-  const [showAssignForm, setShowAssignForm] = useState(false);
 
   useEffect(() => {
     if (!isConnected) {
@@ -25,7 +24,7 @@ function AgencyDashboard(){
   }
 
   const stats = [
-    { label: "Active Projects", value: "12", icon: FiBarChart3, color: "from-blue-500 to-blue-600" },
+    { label: "Active Projects", value: "12", icon: FiPlus, color: "from-blue-500 to-blue-600" },
     { label: "Completed", value: "8", icon: FiCheckCircle, color: "from-green-500 to-green-600" },
     { label: "In Progress", value: "4", icon: FiClock, color: "from-yellow-500 to-yellow-600" },
     { label: "Pending Review", value: "2", icon: FiAlertCircle, color: "from-red-500 to-red-600" },
