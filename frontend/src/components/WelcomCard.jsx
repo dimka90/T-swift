@@ -1,33 +1,32 @@
-import image3 from "../assets/image3.png";
-
 function WelcomeCard() {
-
   const currentDate = new Date();
-
-  // Options for formatting the date
   const options = { year: "numeric", month: "long", day: "numeric" };
-
-  // Format the date
   const formattedDate = currentDate.toLocaleDateString("en-US", options);
+
   return (
-    <div className="w-full">
-      <div className="bg-gradient-to-r  from-slate-600 to-slate-900 text-white flex px-3 rounded-lg mb-1">
-        <div className="flex flex-col mt-5">
-          <p className="text-sm opacity-75">{formattedDate}</p>
-          <p className="text-[20px] font-semibold">Welcome back!</p>
-          <p className="text-sm opacity-75">Stay updated in your Contractor portal</p>
-        </div>
-        <div>
-          <img src={image3} alt="" />
+    <div className="w-full space-y-4">
+      {/* Welcome Section */}
+      <div className="bg-gradient-to-r from-green-500/10 to-blue-500/10 border border-green-500/30 text-white rounded-lg p-6 backdrop-blur-sm">
+        <div className="flex justify-between items-start">
+          <div>
+            <p className="text-sm text-gray-400 mb-2">{formattedDate}</p>
+            <h2 className="text-3xl font-bold mb-2">Welcome back! 👋</h2>
+            <p className="text-gray-300">Stay updated in your Contractor portal</p>
+          </div>
+          <div className="text-5xl">🏗️</div>
         </div>
       </div>
-      <div className="bg-gradient-to-r  from-slate-600 to-slate-900 text-white flex justify-between  py-2 px-3 rounded-lg">
-        <div className="flex flex-col gap-1 mt-5 mb-2">
-          <p className="text-[15px] font-semibold">Available Balance</p>
-          <p className="text-[15px] font-semibold">0<span className="opacity-75"> LSK</span></p>
-        </div>
-        <div className="self-end mb-4">
-          <button className="bg-gradient-to-r  from-slate-600 to-slate-900 border rounded-3xl py-2.5 px-7 text-[14px]">Withdraw</button>
+
+      {/* Balance Section */}
+      <div className="bg-slate-800 border border-slate-700 rounded-lg p-6 backdrop-blur-sm">
+        <div className="flex justify-between items-center">
+          <div>
+            <p className="text-gray-400 text-sm mb-2">Available Balance</p>
+            <p className="text-3xl font-bold text-green-400">0 <span className="text-lg text-gray-400">LSK</span></p>
+          </div>
+          <button className="px-6 py-2 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg hover:from-green-600 hover:to-green-700 transition-all duration-200 font-medium shadow-lg hover:shadow-green-500/50">
+            Withdraw
+          </button>
         </div>
       </div>
     </div>
