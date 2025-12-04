@@ -56,8 +56,7 @@
 // export default Navbar;
 
 
-import React, { useState, useEffect } from 'react';
-import { AiOutlineMenu, AiOutlineClose } from 'react-icons/ai';
+import { useState } from 'react';
 import Logo from "../assets/Logo.png"
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { appKit } from '../wagmi';
@@ -127,7 +126,7 @@ const Navbar = () => {
           className="md:hidden text-2xl cursor-pointer text-gray-300"
           onClick={toggleMobileMenu}
         >
-          {isMobileMenuOpen ? <AiOutlineClose /> : <AiOutlineMenu />}
+          {isMobileMenuOpen ? "✕" : "☰"}
         </div>
       </div>
 
