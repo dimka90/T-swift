@@ -8,9 +8,9 @@ import Home from "./pages/Home";
 
 function Layout() {
   return (
-    <div className="grid grid-rows-layout grid-cols-[250px_1fr] n">
+    <div className="grid grid-rows-layout grid-cols-[250px_1fr] pt-24">
     
-      <header className="row-span-1 col-span-full text-white">
+      <header className="row-span-1 col-span-full text-white fixed top-0 left-0 right-0 z-50">
         <Navbar />
       </header>
 
@@ -22,7 +22,7 @@ function Layout() {
         <SideMenu />
       </aside>
 
-      <main className="row-span-2 col-span-1 p-4 overflow-y-auto mt-8">
+      <main className="row-span-2 col-span-1 p-4 overflow-y-auto">
         <Outlet />
       </main>
       <footer className="row-span-1 col-span-full border ">

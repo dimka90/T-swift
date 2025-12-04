@@ -1,12 +1,8 @@
-import React, { useState } from "react";
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom";
 import { useAppKitAccount } from "@reown/appkit/react";
-import image1 from "../assets/image5.png";
-import Footer from "../components/Footer";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import Navbar from "../components/Navbar";
-import image2 from "../assets/pana.png";
 
 function Home() {
   const navigate = useNavigate();
@@ -21,109 +17,184 @@ function Home() {
         closeOnClick: true,
         pauseOnHover: true,
         draggable: true,
-        progress: undefined,
       });
-    } else {
-      navigate(path); 
+      return;
     }
+    navigate(path);
   };
 
+  const features = [
+    {
+      title: "Transparent",
+      description: "Blockchain-backed contracts ensure complete transparency",
+      icon: "🔍"
+    },
+    {
+      title: "Secure",
+      description: "Military-grade encryption and smart contract security",
+      icon: "🔒"
+    },
+    {
+      title: "Fast",
+      description: "Instant milestone tracking and payment processing",
+      icon: "⚡"
+    },
+    {
+      title: "Scalable",
+      description: "Handle projects of any size with ease",
+      icon: "📈"
+    }
+  ];
+
   return (
-    <div className="bg-[#F5F7FA]">
+    <div className="bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 min-h-screen">
       <ToastContainer />
-
       <Navbar />
-      <div className="flex xl:px-32 lg:px-20 px-5 lg:py-32 py-10 lg:flex-row flex-col xl:h-screen lg:h-screen">
-        <div className="self-center">
-          <h1 className="lg:text-[40px] font-medium text-[30px]">
-            Streamline Contract Management from Start to Finish
-          </h1>
-          <p className="lg:text-[18px] text-[#505F98] w-[409px] text-sm mb-7">
-            An all-in-one platform for government parastatals and contractors to
-            monitor, manage, and complete projects seamlessly
-          </p>
-          <div className="flex gap-8 justify items-center">
-            <button
-              className="bg-green-600 hover:bg-yellow-500 text-white lg:text-[15px] text-md py-3 px-5 rounded-xl"
-              onClick={() => handleButtonClick("/dashboard")}
-            >
-              Start as Contractor
-            </button>
-            <button
-              className="bg-green-600 hover:bg-yellow-500 text-white lg:text-[15px] text-md py-3 px-5 rounded-xl"
-              onClick={() => handleButtonClick("/agency-dashboard")}
-            >
-              Start as Agency
-            </button>
-          </div>
-        </div>
-        <div className="self-center">
-          <img src={image1} alt="" />
-        </div>
-      </div>
-      <div className="lg:px-32 bg-white pb-20 px-5">
-        <div className="grid lg:grid-cols-2 grid-cols-1">
-          <div>
-            <img src={image2} alt="" />
-          </div>
-          <div className="self-center">
-            <p className="text-[#4D4D4D] font-semibold text-[26px]">
-              The Journey of Simplifying Contract Management
-            </p>
-            <p className="text-[#717171] text-[14px]">
-              Managing contracts for government projects is no small feat. Our
-              platform has redefined how parastatals and contractors
-              collaborate. From tracking progress to ensuring timely completion,
-              we’ve built a system that empowers efficiency and transparency.
-              Every milestone is an opportunity to improve accountability and
-              achieve excellence in project management.
-            </p>
-          </div>
-        </div>
-      </div>
-      <div className="grid lg:grid-cols-2 px-10 grid-cols-1 gap-10 lg:px-32 py-10" id="our-mission">
-  <div>
-    <p className="text-[#4D4D4D] font-semibold text-[26px]">
-      Transforming{" "}
-      <span className="text-slate-800">Project Management</span> for the
-      Better
-    </p>
-    <p className="text-sm">
-      Revolutionizing how contracts are tracked and completed, fostering
-      collaboration and transparency for government parastatals and
-      contractors.
-    </p>
-  </div>
-  <div>
-    <p className="text-[#4D4D4D] font-semibold text-[26px]">
-      Our Mission
-    </p>
-    <p className="text-sm">
-      To simplify contract management by streamlining processes, enhancing
-      accountability, and ensuring successful project delivery from start
-      to finish.
-    </p>
-  </div>
-</div>
 
-      <div className="grid lg:grid-cols-2 bg-white lg:px-32 px-10 grid-cols-1 mb-10">
-        <div>
-          <img src={image2} alt="" />
+      {/* Hero Section */}
+      <section className="relative overflow-hidden pt-32 pb-20 px-4 sm:px-6 lg:px-8">
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute -top-40 -right-40 w-80 h-80 bg-green-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"></div>
+          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
         </div>
-        <div className="self-center">
-          <p className="text-[#4D4D4D] font-semibold text-[26px]">
-            Simplifying Contract Management for Seamless Collaboration
-          </p>
-          <p className="text-[#717171] text-[14px]">
-            Managing contracts doesn’t have to be complicated. Our platform is
-            designed to help government parastatals and contractors keep track
-            of every project from initiation to completion. Whether it's
-            tracking milestones, managing documents, or ensuring transparency,
-            we provide the tools you need to stay organized and efficient.
-          </p>
+
+        <div className="relative max-w-7xl mx-auto">
+          <div className="text-center mb-12 animate-fade-in">
+            <div className="inline-block mb-4 px-4 py-2 bg-green-500/10 border border-green-500/30 rounded-full hover:border-green-500/60 transition-colors duration-300">
+              <span className="text-green-400 text-sm font-semibold">🚀 Powered by Blockchain</span>
+            </div>
+            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-white mb-6 leading-tight">
+              Decentralized <span className="bg-gradient-to-r from-green-400 to-blue-500 bg-clip-text text-transparent">Procurement</span> Reimagined
+            </h1>
+            <p className="text-xl text-gray-300 max-w-2xl mx-auto mb-8">
+              Transform government contracts with transparency, accountability, and trust. From project creation to completion, every milestone is recorded on-chain.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <button
+                onClick={() => handleButtonClick("/dashboard")}
+                className="group px-8 py-4 bg-gradient-to-r from-green-500 to-green-600 text-white font-semibold rounded-lg hover:shadow-lg hover:shadow-green-500/50 transition-all duration-300 transform hover:scale-105"
+              >
+                Start as Contractor
+                <span className="inline-block ml-2 group-hover:translate-x-1 transition-transform">→</span>
+              </button>
+              <button
+                onClick={() => handleButtonClick("/agency-dashboard")}
+                className="px-8 py-4 bg-slate-800 text-white font-semibold rounded-lg border border-slate-700 hover:border-green-500/50 hover:bg-slate-700/50 transition-all duration-300 transform hover:scale-105"
+              >
+                Start as Agency
+                <span className="inline-block ml-2">→</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Stats */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-16">
+            {[
+              { number: "100%", label: "Transparent" },
+              { number: "24/7", label: "Available" },
+              { number: "0ms", label: "Latency" },
+              { number: "∞", label: "Scalable" }
+            ].map((stat, idx) => (
+              <div 
+                key={idx} 
+                className="bg-slate-800/50 backdrop-blur border border-slate-700/50 rounded-lg p-6 text-center hover:border-green-500/30 transition-all duration-300 transform hover:scale-105 hover:bg-slate-800/70"
+              >
+                <div className="text-3xl font-bold text-green-400 mb-2">{stat.number}</div>
+                <div className="text-gray-400 text-sm">{stat.label}</div>
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
-      <Footer />
+      </section>
+
+      {/* Features Section */}
+      <section className="py-20 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold text-white mb-4">Why Choose Tswift?</h2>
+            <p className="text-gray-400 text-lg">Enterprise-grade procurement management powered by blockchain</p>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {features.map((feature, idx) => (
+              <div 
+                key={idx} 
+                className="bg-slate-800/50 backdrop-blur border border-slate-700/50 rounded-lg p-8 hover:border-green-500/30 transition-all duration-300 transform hover:scale-105 hover:bg-slate-800/70 group"
+              >
+                <div className="text-5xl mb-4 group-hover:scale-110 transition-transform duration-300">{feature.icon}</div>
+                <h3 className="text-xl font-semibold text-white mb-3">{feature.title}</h3>
+                <p className="text-gray-400 text-sm">{feature.description}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* How It Works */}
+      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-slate-800/30">
+        <div className="max-w-7xl mx-auto">
+          <h2 className="text-4xl font-bold text-white text-center mb-16">How It Works</h2>
+          <div className="grid md:grid-cols-3 gap-8">
+            {[
+              { step: "1", title: "Register", desc: "Agencies and contractors register with verified credentials" },
+              { step: "2", title: "Create Projects", desc: "Agencies create and assign projects to contractors" },
+              { step: "3", title: "Track & Complete", desc: "Monitor milestones and process payments on-chain" }
+            ].map((item, idx) => (
+              <div key={idx} className="relative group">
+                <div className="bg-slate-800/50 backdrop-blur border border-slate-700/50 rounded-lg p-8 hover:border-green-500/30 transition-all duration-300 transform hover:scale-105 hover:bg-slate-800/70">
+                  <div className="text-5xl font-bold text-green-500/20 mb-4 group-hover:text-green-500/40 transition-colors">{item.step}</div>
+                  <h3 className="text-2xl font-semibold text-white mb-3">{item.title}</h3>
+                  <p className="text-gray-400 text-center text-sm">{item.desc}</p>
+                </div>
+                {idx < 2 && (
+                  <div className="hidden md:block absolute top-1/2 -right-4 text-green-500/30 text-2xl">→</div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-r from-green-500/10 to-blue-500/10 border-y border-slate-700">
+        <div className="max-w-4xl mx-auto text-center">
+          <h2 className="text-4xl font-bold text-white mb-4">Ready to Transform Your Procurement?</h2>
+          <p className="text-gray-300 text-lg mb-8">Join the future of transparent, blockchain-based contract management</p>
+          <button
+            onClick={() => handleButtonClick("/dashboard")}
+            className="px-8 py-4 bg-gradient-to-r from-green-500 to-green-600 text-white font-semibold rounded-lg hover:shadow-lg hover:shadow-green-500/50 transition-all duration-300 transform hover:scale-105"
+          >
+            Get Started Now
+          </button>
+        </div>
+      </section>
+
+      <style jsx>{`
+        @keyframes blob {
+          0%, 100% { transform: translate(0, 0) scale(1); }
+          33% { transform: translate(30px, -50px) scale(1.1); }
+          66% { transform: translate(-20px, 20px) scale(0.9); }
+        }
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        .animate-blob {
+          animation: blob 7s infinite;
+        }
+        .animation-delay-2000 {
+          animation-delay: 2s;
+        }
+        .animate-fade-in {
+          animation: fadeIn 0.8s ease-out;
+        }
+      `}</style>
     </div>
   );
 }

@@ -16,13 +16,12 @@ import AgencySideMenu from "./components/AgencySideMenu";
 
 function App() {
   return (
-    <div className="bg-slate-900 ">
+    <div style={{ minHeight: "100vh", backgroundColor: "#0f172a" }}>
       <Router>
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/" element={<Layout />}>
-          <Route path="/milestoneform" element={<MilestoneForm />}/>
-            {/* <Route path="/login" element={<Login />} /> */}
+          <Route element={<Layout />}>
+            <Route path="/milestoneform" element={<MilestoneForm />}/>
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/projects" element={<Projects />} />
             <Route path="/payment" element={<Payment />} />
@@ -32,8 +31,6 @@ function App() {
             <Route path="/assigncontract" element={<AssignContract />} />
             <Route path="/review" element={<ReviewMilestone />} />
             <Route path="/agency-sidemenu" element={<AgencySideMenu />} />
-
-
           </Route>
         </Routes>
       </Router>

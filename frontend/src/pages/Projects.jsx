@@ -140,14 +140,32 @@
 // }
 
 // export default Projects;
+import { useEffect } from "react";
 import avatar from "../assets/Avatar.png";
 import { MdFilterList } from "react-icons/md";
 import { CiSearch } from "react-icons/ci";
 import useContractorData from "../components/read";
 import { useNavigate } from "react-router-dom";
+import { useAppKitAccount } from "@reown/appkit/react";
+import { toast } from "react-toastify";
 
 function Projects() {
   let navigate = useNavigate();
+  const { isConnected } = useAppKitAccount();
+
+  useEffect(() => {
+    if (!isConnected) {
+      toast.error("Please connect your wallet to view projects", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+      navigate("/");
+    }
+  }, [isConnected, navigate]);
+
+  if (!isConnected) {
+    return null;
+  }
 
   // Fetch data from the smart contract
   const projectData = useContractorData("getContractorsProject");
