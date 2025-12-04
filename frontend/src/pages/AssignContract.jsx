@@ -72,7 +72,7 @@ const AssignContract = () => {
   };
 
   return (
-    <div className="w-full">
+    <div className="w-full max-w-2xl">
       <div className="mb-6">
         <h2 className="text-2xl font-bold text-white mb-2">📋 Create New Project</h2>
         <p className="text-gray-400">Fill in the project details to assign a new contract</p>
