@@ -1,13 +1,14 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useWriteContract, useWaitForTransactionReceipt, useAccount } from "wagmi";
 import { wagmiContractConfig } from "../lib/wagmiContractConfig";
+import { TransactionStatus } from "../components/TransactionStatus";
 
 const AssignContract = () => {
-  const [loading, setLoading] = useState(false);
   const { isConnected } = useAccount();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const {
     register,
@@ -19,32 +20,72 @@ const AssignContract = () => {
   const {
     data: transactionData,
     writeContract,
-    isLoading: isWriting,
-    error,
+    isPending: isWriting,
+    error: writeError,
   } = useWriteContract();
 
   const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({
     hash: transactionData?.hash,
   });
 
+  // Handle successful transaction confirmation
+  useEffect(() => {
+    if (isConfirmed) {
+      toast.success("Project Successfully Assigned!", {
+        position: "top-right",
+        autoClose: 5000,
+      });
+      reset();
+      setIsSubmitting(false);
+    }
+  }, [isConfirmed, reset]);
+
   const convertToTimestamp = (date) => Math.floor(new Date(date).getTime() / 1000);
+
+  const validateForm = (data) => {
+    const errors = [];
+    
+    if (!data.description?.trim()) errors.push("Description is required");
+    if (!data.budget || parseFloat(data.budget) <= 0) errors.push("Budget must be greater than 0");
+    if (!data.contractorAddress?.trim()) errors.push("Contractor address is required");
+    if (!data.startDate) errors.push("Start date is required");
+    if (!data.endDate) errors.push("End date is required");
+    
+    const startDate = new Date(data.startDate);
+    const endDate = new Date(data.endDate);
+    if (endDate <= startDate) errors.push("End date must be after start date");
+    
+    return errors;
+  };
 
   const onSubmit = async (data) => {
     if (!isConnected) {
-      toast.error("Please connect your wallet.");
+      toast.error("Please connect your wallet to create a project.", {
+        position: "top-right",
+        autoClose: 5000,
+      });
       return;
     }
 
-    const payload = {
-      description: data.description,
-      budget: data.budget,
-      contractorAddress: data.contractorAddress,
-      startDate: convertToTimestamp(data.startDate),
-      endDate: convertToTimestamp(data.endDate),
-    };
+    const validationErrors = validateForm(data);
+    if (validationErrors.length > 0) {
+      validationErrors.forEach(err => 
+        toast.error(err, { position: "top-right", autoClose: 5000 })
+      );
+      return;
+    }
 
     try {
-      setLoading(true);
+      setIsSubmitting(true);
+      
+      const payload = {
+        description: data.description.trim(),
+        budget: BigInt(Math.floor(parseFloat(data.budget) * 1e18)).toString(),
+        contractorAddress: data.contractorAddress.trim(),
+        startDate: convertToTimestamp(data.startDate),
+        endDate: convertToTimestamp(data.endDate),
+      };
+
       writeContract({
         ...wagmiContractConfig,
         functionName: "createProject",
@@ -56,18 +97,13 @@ const AssignContract = () => {
           payload.endDate,
         ],
       });
-      toast.info("Transaction submitted. Awaiting confirmation...");
-      setTimeout(()=>{
-        toast.success("Project Successfully Assigned")
-        reset();
-      },3000);
-
-     
     } catch (err) {
       console.error("Error:", err);
-      toast.error(`Transaction failed: ${err.message}`);
-    
-      setLoading(false);
+      toast.error(`Error: ${err.message || "Failed to submit transaction"}`, {
+        position: "top-right",
+        autoClose: 5000,
+      });
+      setIsSubmitting(false);
     }
   };
 
@@ -180,13 +216,13 @@ const AssignContract = () => {
             {/* Submit Button */}
             <button
               type="submit"
-              disabled={loading || isWriting || isConfirming}
+              disabled={isSubmitting || isWriting || isConfirming}
               className="w-full mt-8 bg-gradient-to-r from-green-500 to-green-600 text-white font-semibold py-4 rounded-xl hover:from-green-600 hover:to-green-700 disabled:from-gray-600 disabled:to-gray-700 flex items-center justify-center gap-2 transition duration-300 shadow-lg hover:shadow-green-500/50 disabled:shadow-none transform hover:scale-105 disabled:scale-100"
             >
-              {loading || isWriting || isConfirming ? (
+              {isSubmitting || isWriting || isConfirming ? (
                 <>
                   <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                  <span>Processing...</span>
+                  <span>{isConfirming ? "Confirming..." : "Processing..."}</span>
                 </>
               ) : (
                 <>
@@ -196,22 +232,13 @@ const AssignContract = () => {
               )}
             </button>
 
-            {/* Status Messages */}
-            {isConfirming && (
-              <div className="p-4 bg-yellow-500/10 border border-yellow-500/30 rounded-xl text-yellow-400 text-center font-medium animate-pulse">
-                ⏳ Transaction confirming...
-              </div>
-            )}
-            {isConfirmed && (
-              <div className="p-4 bg-green-500/10 border border-green-500/30 rounded-xl text-green-400 text-center font-medium">
-                ✓ Transaction confirmed!
-              </div>
-            )}
-            {error && (
-              <div className="p-4 bg-red-500/10 border border-red-500/30 rounded-xl text-red-400 text-center font-medium">
-                ✕ {error.message}
-              </div>
-            )}
+            {/* Transaction Status */}
+            <TransactionStatus 
+              isConfirming={isConfirming}
+              isConfirmed={isConfirmed}
+              error={writeError?.message}
+              txHash={transactionData?.hash}
+            />
           </form>
         </div>
       </div>
