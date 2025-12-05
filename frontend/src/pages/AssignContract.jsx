@@ -72,102 +72,150 @@ const AssignContract = () => {
   };
 
   return (
-    <div className="w-full">
-      <form onSubmit={handleSubmit(onSubmit)}>
-          
-          <div className="mb-5">
-            <label className="block text-sm font-semibold text-gray-200 mb-2">Project Description</label>
-            <input
-              type="text"
-              {...register("description", { required: "Description is required" })}
-              placeholder="Enter project description"
-              className={`w-full px-4 py-2 bg-slate-700 border rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 transition ${
-                errors.description ? "border-red-500" : "border-slate-600"
-              }`}
-            />
-            {errors.description && (
-              <p className="mt-1 text-sm text-red-400">{errors.description.message}</p>
-            )}
+    <div className="w-full flex items-center justify-center min-h-screen px-4">
+      <div className="w-full max-w-2xl">
+        {/* Header */}
+        <div className="mb-8 text-center">
+          <div className="inline-block mb-4 px-4 py-2 bg-green-500/10 border border-green-500/30 rounded-full">
+            <span className="text-green-400 text-sm font-semibold">🚀 New Project</span>
           </div>
+          <h2 className="text-4xl font-bold text-white mb-3">Create New Project</h2>
+          <p className="text-gray-400 text-lg">Fill in the project details to assign a new contract to a contractor</p>
+        </div>
 
-          <div className="mb-5">
-            <label className="block text-sm font-semibold text-gray-200 mb-2">Budget (in tokens)</label>
-            <input
-              type="number"
-              {...register("budget", { required: "Budget is required", min: 1 })}
-              placeholder="Enter budget amount"
-              className={`w-full px-4 py-2 bg-slate-700 border rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 transition ${
-                errors.budget ? "border-red-500" : "border-slate-600"
-              }`}
-            />
-            {errors.budget && (
-              <p className="mt-1 text-sm text-red-400">{errors.budget.message}</p>
-            )}
-          </div>
-
-          <div className="mb-5">
-            <label className="block text-sm font-semibold text-gray-200 mb-2">Contractor Address</label>
-            <input
-              type="text"
-              {...register("contractorAddress", { required: "Contractor address is required" })}
-              placeholder="0x..."
-              className={`w-full px-4 py-2 bg-slate-700 border rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 transition font-mono text-sm ${
-                errors.contractorAddress ? "border-red-500" : "border-slate-600"
-              }`}
-            />
-            {errors.contractorAddress && (
-              <p className="mt-1 text-sm text-red-400">{errors.contractorAddress.message}</p>
-            )}
-          </div>
-
-          <div className="grid grid-cols-2 gap-4 mb-5">
+        {/* Form Card */}
+        <div className="bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700/50 rounded-2xl p-8 shadow-2xl backdrop-blur-sm">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+            {/* Project Description */}
             <div>
-              <label className="block text-sm font-semibold text-gray-200 mb-2">Start Date</label>
-              <input
-                type="date"
-                {...register("startDate", { required: "Start date is required" })}
-                className={`w-full px-4 py-2 bg-slate-700 border rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-green-500 transition ${
-                  errors.startDate ? "border-red-500" : "border-slate-600"
+              <label className="block text-sm font-semibold text-gray-200 mb-3">📝 Project Description</label>
+              <textarea
+                {...register("description", { required: "Description is required" })}
+                placeholder="Enter a detailed project description..."
+                rows="3"
+                className={`w-full px-4 py-3 bg-slate-700/50 border rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition resize-none ${
+                  errors.description ? "border-red-500/50" : "border-slate-600/50 hover:border-slate-500/50"
                 }`}
               />
-              {errors.startDate && (
-                <p className="mt-1 text-sm text-red-400">{errors.startDate.message}</p>
+              {errors.description && (
+                <p className="mt-2 text-sm text-red-400 flex items-center gap-1">
+                  <span>⚠️</span> {errors.description.message}
+                </p>
               )}
             </div>
+
+            {/* Budget */}
             <div>
-              <label className="block text-sm font-semibold text-gray-200 mb-2">End Date</label>
+              <label className="block text-sm font-semibold text-gray-200 mb-3">💰 Budget (in tokens)</label>
+              <div className="relative">
+                <input
+                  type="number"
+                  {...register("budget", { required: "Budget is required", min: 1 })}
+                  placeholder="0.00"
+                  className={`w-full px-4 py-3 bg-slate-700/50 border rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition ${
+                    errors.budget ? "border-red-500/50" : "border-slate-600/50 hover:border-slate-500/50"
+                  }`}
+                />
+                <span className="absolute right-4 top-3 text-gray-400 text-sm font-medium">LSK</span>
+              </div>
+              {errors.budget && (
+                <p className="mt-2 text-sm text-red-400 flex items-center gap-1">
+                  <span>⚠️</span> {errors.budget.message}
+                </p>
+              )}
+            </div>
+
+            {/* Contractor Address */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-200 mb-3">🔗 Contractor Address</label>
               <input
-                type="date"
-                {...register("endDate", { required: "End date is required" })}
-                className={`w-full px-4 py-2 bg-slate-700 border rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-green-500 transition ${
-                  errors.endDate ? "border-red-500" : "border-slate-600"
+                type="text"
+                {...register("contractorAddress", { required: "Contractor address is required" })}
+                placeholder="0x..."
+                className={`w-full px-4 py-3 bg-slate-700/50 border rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition font-mono text-sm ${
+                  errors.contractorAddress ? "border-red-500/50" : "border-slate-600/50 hover:border-slate-500/50"
                 }`}
               />
-              {errors.endDate && (
-                <p className="mt-1 text-sm text-red-400">{errors.endDate.message}</p>
+              {errors.contractorAddress && (
+                <p className="mt-2 text-sm text-red-400 flex items-center gap-1">
+                  <span>⚠️</span> {errors.contractorAddress.message}
+                </p>
               )}
             </div>
-          </div>
 
-          <button
-            type="submit"
-            className="w-full bg-gradient-to-r from-green-600 to-green-700 text-white font-semibold py-3 rounded-lg hover:from-green-700 hover:to-green-800 flex items-center justify-center gap-2 transition duration-300 shadow-lg hover:shadow-xl"
-            disabled={loading || isWriting || isConfirming}
-          >
-            {loading || isWriting || isConfirming ? (
-              <>
-                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                Processing...
-              </>
-            ) : (
-              "Create Project"
+            {/* Date Range */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm font-semibold text-gray-200 mb-3">📅 Start Date</label>
+                <input
+                  type="date"
+                  {...register("startDate", { required: "Start date is required" })}
+                  className={`w-full px-4 py-3 bg-slate-700/50 border rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition ${
+                    errors.startDate ? "border-red-500/50" : "border-slate-600/50 hover:border-slate-500/50"
+                  }`}
+                />
+                {errors.startDate && (
+                  <p className="mt-2 text-sm text-red-400 flex items-center gap-1">
+                    <span>⚠️</span> {errors.startDate.message}
+                  </p>
+                )}
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-200 mb-3">📅 End Date</label>
+                <input
+                  type="date"
+                  {...register("endDate", { required: "End date is required" })}
+                  className={`w-full px-4 py-3 bg-slate-700/50 border rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition ${
+                    errors.endDate ? "border-red-500/50" : "border-slate-600/50 hover:border-slate-500/50"
+                  }`}
+                />
+                {errors.endDate && (
+                  <p className="mt-2 text-sm text-red-400 flex items-center gap-1">
+                    <span>⚠️</span> {errors.endDate.message}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            {/* Submit Button */}
+            <button
+              type="submit"
+              disabled={loading || isWriting || isConfirming}
+              className="w-full mt-8 bg-gradient-to-r from-green-500 to-green-600 text-white font-semibold py-4 rounded-xl hover:from-green-600 hover:to-green-700 disabled:from-gray-600 disabled:to-gray-700 flex items-center justify-center gap-2 transition duration-300 shadow-lg hover:shadow-green-500/50 disabled:shadow-none transform hover:scale-105 disabled:scale-100"
+            >
+              {loading || isWriting || isConfirming ? (
+                <>
+                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  <span>Processing...</span>
+                </>
+              ) : (
+                <>
+                  <span>✓</span>
+                  <span>Create Project</span>
+                </>
+              )}
+            </button>
+
+            {/* Status Messages */}
+            {isConfirming && (
+              <div className="p-4 bg-yellow-500/10 border border-yellow-500/30 rounded-xl text-yellow-400 text-center font-medium animate-pulse">
+                ⏳ Transaction confirming...
+              </div>
             )}
-          </button>
+            {isConfirmed && (
+              <div className="p-4 bg-green-500/10 border border-green-500/30 rounded-xl text-green-400 text-center font-medium">
+                ✓ Transaction confirmed!
+              </div>
+            )}
+            {error && (
+              <div className="p-4 bg-red-500/10 border border-red-500/30 rounded-xl text-red-400 text-center font-medium">
+                ✕ {error.message}
+              </div>
+            )}
+          </form>
+        </div>
+      </div>
 
-          {isConfirming && <p className="mt-4 text-center text-yellow-400 font-medium">⏳ Transaction confirming...</p>}
-          {isConfirmed && <p className="mt-4 text-center text-green-400 font-medium">✓ Transaction confirmed!</p>}
-          {error && <p className="mt-4 text-center text-red-400 font-medium">✕ {error.message}</p>}
-        </form>
       <ToastContainer />
     </div>
   );
