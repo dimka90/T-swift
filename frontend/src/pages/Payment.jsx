@@ -1,12 +1,17 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAppKitAccount } from "@reown/appkit/react";
+import { useAccount } from "wagmi";
 import { toast } from "react-toastify";
+import { FiLoader, FiAlertCircle } from "react-icons/fi";
 
 function Payment() {
   const navigate = useNavigate();
   const { isConnected } = useAppKitAccount();
+  const { address } = useAccount();
   const [searchTerm, setSearchTerm] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
+  const [payments, setPayments] = useState([]);
 
   useEffect(() => {
     if (!isConnected) {
@@ -15,18 +20,22 @@ function Payment() {
         autoClose: 3000,
       });
       navigate("/");
+    } else {
+      // Simulate loading payment data
+      setTimeout(() => {
+        setPayments([
+          { id: "TRX890123456", amount: "20 LSK", date: "06/08/2024", status: "Completed", statusColor: "green" },
+          { id: "TRX890123457", amount: "15 LSK", date: "05/08/2024", status: "Pending", statusColor: "yellow" },
+          { id: "TRX890123458", amount: "25 LSK", date: "04/08/2024", status: "Completed", statusColor: "green" },
+        ]);
+        setIsLoading(false);
+      }, 1000);
     }
   }, [isConnected, navigate]);
 
   if (!isConnected) {
     return null;
   }
-
-  const payments = [
-    { id: "TRX890123456", amount: "20 LSK", date: "06/08/2024", status: "Completed", statusColor: "green" },
-    { id: "TRX890123457", amount: "15 LSK", date: "05/08/2024", status: "Cancelled", statusColor: "red" },
-    { id: "TRX890123458", amount: "25 LSK", date: "04/08/2024", status: "Completed", statusColor: "green" },
-  ];
 
   const getStatusStyles = (color) => {
     const styles = {
@@ -66,40 +75,49 @@ function Payment() {
 
         {/* Table Card */}
         <div className="bg-slate-800 border border-slate-700 rounded-lg shadow-lg overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="bg-slate-900/50 border-b border-slate-700">
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-300">Transaction ID</th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-300">Amount</th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-300">Date</th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-300">Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredPayments.length > 0 ? (
-                  filteredPayments.map((payment, idx) => (
-                    <tr key={idx} className="border-b border-slate-700 hover:bg-slate-700/50 transition-colors duration-200">
-                      <td className="px-6 py-4 text-white font-mono text-sm">{payment.id}</td>
-                      <td className="px-6 py-4 text-green-400 font-semibold">{payment.amount}</td>
-                      <td className="px-6 py-4 text-gray-400">{payment.date}</td>
-                      <td className="px-6 py-4">
-                        <span className={`inline-block px-3 py-1 text-xs font-semibold rounded-full ${getStatusStyles(payment.statusColor)}`}>
-                          {payment.status}
-                        </span>
+          {isLoading ? (
+            <div className="flex items-center justify-center py-12">
+              <div className="text-center">
+                <FiLoader className="w-8 h-8 text-green-500 animate-spin mx-auto mb-3" />
+                <p className="text-gray-400">Loading payment history...</p>
+              </div>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="bg-slate-900/50 border-b border-slate-700">
+                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-300">Transaction ID</th>
+                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-300">Amount</th>
+                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-300">Date</th>
+                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-300">Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredPayments.length > 0 ? (
+                    filteredPayments.map((payment, idx) => (
+                      <tr key={idx} className="border-b border-slate-700 hover:bg-slate-700/50 transition-colors duration-200">
+                        <td className="px-6 py-4 text-white font-mono text-sm">{payment.id}</td>
+                        <td className="px-6 py-4 text-green-400 font-semibold">{payment.amount}</td>
+                        <td className="px-6 py-4 text-gray-400">{payment.date}</td>
+                        <td className="px-6 py-4">
+                          <span className={`inline-block px-3 py-1 text-xs font-semibold rounded-full ${getStatusStyles(payment.statusColor)}`}>
+                            {payment.status}
+                          </span>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan="4" className="px-6 py-8 text-center text-gray-400">
+                        {searchTerm ? 'No transactions found matching your search' : 'No payment history available'}
                       </td>
                     </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan="4" className="px-6 py-8 text-center text-gray-400">
-                      No transactions found
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
 
         {/* Summary Stats */}

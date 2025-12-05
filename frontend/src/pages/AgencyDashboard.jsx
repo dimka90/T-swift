@@ -3,7 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { useAppKitAccount } from "@reown/appkit/react";
 import { toast } from "react-toastify";
 import { FiPlus, FiCheckCircle, FiClock, FiAlertCircle } from "react-icons/fi";
-import AssignContract from "./AssignContract"
+import AssignContract from "./AssignContract";
+import { ProjectDashboard } from "../components/ProjectDashboard";
 
 function AgencyDashboard(){
   const navigate = useNavigate();
@@ -97,32 +98,10 @@ function AgencyDashboard(){
             </div>
           </div>
 
-          {/* Recent Activity */}
+          {/* Active Projects */}
           <div className="bg-slate-800 rounded-lg shadow-lg border border-slate-700 p-6">
-            <h3 className="text-lg font-bold text-white mb-4">Recent Activity</h3>
-            <div className="space-y-3">
-              <div className="flex items-start gap-3 pb-3 border-b border-slate-700">
-                <div className="w-2 h-2 bg-green-500 rounded-full mt-1.5 flex-shrink-0"></div>
-                <div>
-                  <p className="text-white text-sm font-medium">Project Created</p>
-                  <p className="text-gray-400 text-xs">2 hours ago</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3 pb-3 border-b border-slate-700">
-                <div className="w-2 h-2 bg-blue-500 rounded-full mt-1.5 flex-shrink-0"></div>
-                <div>
-                  <p className="text-white text-sm font-medium">Milestone Submitted</p>
-                  <p className="text-gray-400 text-xs">5 hours ago</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <div className="w-2 h-2 bg-yellow-500 rounded-full mt-1.5 flex-shrink-0"></div>
-                <div>
-                  <p className="text-white text-sm font-medium">Payment Processed</p>
-                  <p className="text-gray-400 text-xs">1 day ago</p>
-                </div>
-              </div>
-            </div>
+            <h3 className="text-lg font-bold text-white mb-4">Active Projects</h3>
+            <ProjectDashboard />
           </div>
         </div>
       </div>
