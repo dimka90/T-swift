@@ -9,10 +9,10 @@ export const ProjectDashboard = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Fetch submitted projects
-  const { data: submittedProjects, isLoading: isLoadingProjects, error: projectError } = useReadContract({
+  // Fetch contractor's projects
+  const { data: contractorProjects, isLoading: isLoadingProjects, error: projectError } = useReadContract({
     ...wagmiContractConfig,
-    functionName: 'getSubmittedProject',
+    functionName: 'getContractorsProject',
     args: [address],
     enabled: !!address,
   });
@@ -21,11 +21,11 @@ export const ProjectDashboard = () => {
     if (projectError) {
       setError('Failed to load projects');
       setIsLoading(false);
-    } else if (submittedProjects) {
-      setProjects(submittedProjects);
+    } else if (contractorProjects) {
+      setProjects(contractorProjects);
       setIsLoading(false);
     }
-  }, [submittedProjects, projectError]);
+  }, [contractorProjects, projectError]);
 
   const getProjectStatus = (project) => {
     if (project.completed) return { label: 'Completed', color: 'green', icon: FiCheckCircle };

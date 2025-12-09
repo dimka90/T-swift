@@ -20,19 +20,19 @@ function ContractorDashboard() {
   const [isLoadingStats, setIsLoadingStats] = useState(true);
 
   // Fetch contractor projects
-  const { data: contractorProjects, isLoading: isLoadingProjects } = useReadContract({
+  const { data: contractorProjects, isLoading: isLoadingProjects, error: projectsError } = useReadContract({
     ...wagmiContractConfig,
     functionName: "getContractorsProject",
-    args: [wagmiAddress],
-    enabled: !!wagmiAddress,
+    args: [address],
+    enabled: !!address,
   });
 
   // Fetch rejected milestones
-  const { data: rejectedMilestones, isLoading: isLoadingRejected } = useReadContract({
+  const { data: rejectedMilestones, isLoading: isLoadingRejected, error: rejectedError } = useReadContract({
     ...wagmiContractConfig,
     functionName: "getRejectedProject",
-    args: [wagmiAddress],
-    enabled: !!wagmiAddress,
+    args: [address],
+    enabled: !!address,
   });
 
   useEffect(() => {
