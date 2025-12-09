@@ -11,6 +11,7 @@ import AgencyProjects from "./pages/AgencyProjects";
 import AgencyPayment from "./pages/AgencyPayment";
 import AgencyDashboard from "./pages/AgencyDashboard";
 import ContractorDashboard from "./pages/ContractorDashboard";
+import MilestonesPage from "./pages/MilestonesPage";
 import Home from "./pages/Home";
 import ReviewMilestone from "./pages/projectReview";
 import AgencySideMenu from "./components/AgencySideMenu";
@@ -25,6 +26,7 @@ function App() {
             <Route path="/milestoneform" element={<MilestoneForm />}/>
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/contractor-dashboard" element={<ContractorDashboard />} />
+            <Route path="/milestones" element={<MilestonesPage />} />
             <Route path="/projects" element={<Projects />} />
             <Route path="/payment" element={<Payment />} />
             <Route path="/agency-dashboard" element={<AgencyDashboard />} />
