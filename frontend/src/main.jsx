@@ -6,7 +6,6 @@ import { WagmiProvider } from 'wagmi';
 
 import './index.css'
 import App from './App.jsx'
-import { RoleProvider } from './context/RoleContext';
 
 import { config, appKit } from './wagmi';
 
@@ -16,9 +15,7 @@ createRoot(document.getElementById('root')).render(
   <StrictMode>
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
-        <RoleProvider>
-          <App />
-        </RoleProvider>
+        <App />
       </QueryClientProvider>
     </WagmiProvider>
   </StrictMode>,
