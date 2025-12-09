@@ -1,33 +1,11 @@
-import React, { useMemo } from "react";
-import { Outlet, useLocation } from "react-router-dom";
+import { Outlet } from "react-router-dom";
 import ContractorSideMenu from "./components/ContractorSideMenu";
 import Navbar from "./components/Navbar";
 import AgencySideMenu from "./components/AgencySideMenu";
+import { useRole } from "./context/RoleContext";
 
 function Layout() {
-  const location = useLocation();
-
-  // Determine which sidebar to show based on current route
-  // Agency routes take priority
-  const isAgencyRoute = useMemo(() => {
-    return (
-      location.pathname.includes("agency") ||
-      location.pathname === "/assignContract"
-    );
-  }, [location.pathname]);
-
-  // Contractor routes - only if NOT an agency route
-  const isContractorRoute = useMemo(() => {
-    if (isAgencyRoute) return false;
-    
-    return (
-      location.pathname.includes("contractor") ||
-      location.pathname === "/dashboard" ||
-      location.pathname === "/milestones" ||
-      location.pathname === "/milestoneform" ||
-      location.pathname === "/review"
-    );
-  }, [location.pathname, isAgencyRoute]);
+  const { userRole } = useRole();
 
   return (
     <div className="grid grid-rows-layout grid-cols-[256px_1fr] pt-24">
@@ -38,7 +16,7 @@ function Layout() {
 
       {/* Sidebar - Role-based */}
       <aside className="row-span-2 col-span-1 text-white mt-20 overflow-y-auto">
-        {isAgencyRoute ? <AgencySideMenu /> : <ContractorSideMenu />}
+        {userRole === 'agency' ? <AgencySideMenu /> : <ContractorSideMenu />}
       </aside>
 
       {/* Main Content */}
