@@ -1,8 +1,8 @@
 import { Link, useLocation } from "react-router-dom";
-import { FiHome, FiPlus, FiUsers, FiBell, FiLogOut, FiTrendingUp, FiDollarSign } from "react-icons/fi";
+import { FiHome, FiFileText, FiClock, FiCheckCircle, FiAlertCircle, FiLogOut } from "react-icons/fi";
 import { useAppKitAccount } from "@reown/appkit/react";
 
-function AgencySideMenu() {
+function ContractorSideMenu() {
   const location = useLocation();
   const { disconnect } = useAppKitAccount();
 
@@ -10,38 +10,32 @@ function AgencySideMenu() {
     {
       icon: FiHome,
       label: "Dashboard",
-      path: "/agency-dashboard",
-      description: "Overview & stats",
+      path: "/contractor-dashboard",
+      description: "View your projects",
     },
     {
-      icon: FiPlus,
-      label: "Create Project",
-      path: "/assignContract",
-      description: "New procurement",
+      icon: FiFileText,
+      label: "My Projects",
+      path: "/projects",
+      description: "Assigned projects",
     },
     {
-      icon: FiUsers,
-      label: "Contractors",
-      path: "/agency-projects",
-      description: "Manage partners",
+      icon: FiClock,
+      label: "Pending Tasks",
+      path: "/milestoneform",
+      description: "Submit deliverables",
     },
     {
-      icon: FiTrendingUp,
-      label: "Projects",
-      path: "/agency-projects",
-      description: "View all projects",
+      icon: FiCheckCircle,
+      label: "Completed",
+      path: "/payment",
+      description: "Completed projects",
     },
     {
-      icon: FiDollarSign,
-      label: "Payments",
-      path: "/agency-payment",
-      description: "Payment history",
-    },
-    {
-      icon: FiBell,
-      label: "Notifications",
+      icon: FiAlertCircle,
+      label: "Rejections",
       path: "/review",
-      description: "Submissions & alerts",
+      description: "Review feedback",
     },
   ];
 
@@ -53,11 +47,11 @@ function AgencySideMenu() {
       <div>
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 bg-green-500 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold">🏛️</span>
+            <div className="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center">
+              <span className="text-white font-bold">👷</span>
             </div>
             <div>
-              <h3 className="text-lg font-bold text-white">Agency</h3>
+              <h3 className="text-lg font-bold text-white">Contractor</h3>
               <p className="text-xs text-gray-400">Portal</p>
             </div>
           </div>
@@ -73,8 +67,8 @@ function AgencySideMenu() {
                   to={item.path}
                   className={`flex items-start gap-3 px-4 py-3 rounded-lg transition-all duration-200 group ${
                     isActive(item.path)
-                      ? "bg-green-500/20 text-green-400 border border-green-500/30"
-                      : "text-gray-300 hover:text-green-400 hover:bg-slate-800/50"
+                      ? "bg-blue-500/20 text-blue-400 border border-blue-500/30"
+                      : "text-gray-300 hover:text-blue-400 hover:bg-slate-800/50"
                   }`}
                 >
                   <Icon className="w-5 h-5 mt-0.5 flex-shrink-0" />
@@ -94,11 +88,11 @@ function AgencySideMenu() {
       {/* Footer Section */}
       <div className="space-y-4">
         {/* Status Card */}
-        <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-4">
+        <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4">
           <p className="text-xs text-gray-400 mb-2">Status</p>
-          <p className="text-sm font-semibold text-green-400">Active</p>
+          <p className="text-sm font-semibold text-blue-400">Active</p>
           <div className="flex items-center gap-2 mt-2">
-            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+            <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
             <p className="text-xs text-gray-400">Connected</p>
           </div>
         </div>
@@ -116,4 +110,4 @@ function AgencySideMenu() {
   );
 }
 
-export default AgencySideMenu;
+export default ContractorSideMenu;
