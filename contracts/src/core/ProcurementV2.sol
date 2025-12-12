@@ -26,7 +26,7 @@ contract ProcurementV2 {
     
     // Payment tracking
     mapping(uint256 => Payment) public projectPayments;
-    mapping(uint256 => Milestone[]) public projectMilestones;
+    mapping(uint256 => MilestoneData[]) public projectMilestones;
     mapping(uint256 => MilestoneStatus) public milestoneStatus;
     
     // Counters
@@ -44,13 +44,6 @@ contract ProcurementV2 {
         PAID
     }
     
-    enum ProjectStatus {
-        ACTIVE,
-        COMPLETED,
-        DISPUTED,
-        CANCELLED
-    }
-    
     // ============ Structs ============
     
     struct Payment {
@@ -62,7 +55,7 @@ contract ProcurementV2 {
         uint256 releaseTime;
     }
     
-    struct Milestone {
+    struct MilestoneData {
         uint256 milestoneId;
         uint256 projectId;
         string description;
@@ -196,7 +189,7 @@ contract ProcurementV2 {
             startDate: _startDate,
             endDate: _endDate,
             imageCid: "",
-            status: ProjectStatus.ACTIVE
+            status: 0 // ACTIVE
         });
         
         // Initialize payment tracking
@@ -238,7 +231,7 @@ contract ProcurementV2 {
         
         uint256 currentMilestoneId = milestoneId;
         
-        Milestone memory newMilestone = Milestone({
+        MilestoneData memory newMilestone = MilestoneData({
             milestoneId: currentMilestoneId,
             projectId: _projectId,
             description: _description,
@@ -273,7 +266,7 @@ contract ProcurementV2 {
         require(bytes(_deliverablesCid).length > 0, "Deliverables CID cannot be empty");
         
         // Find milestone
-        Milestone storage milestone = _findMilestone(_milestoneId);
+        MilestoneData storage milestone = _findMilestone(_milestoneId);
         require(milestone.milestoneId == _milestoneId, "Milestone not found");
         require(milestone.status == MilestoneStatus.PENDING, "Milestone already submitted");
         
@@ -293,7 +286,7 @@ contract ProcurementV2 {
      * @param _milestoneId Milestone ID
      */
     function approveMilestone(uint256 _milestoneId) external {
-        Milestone storage milestone = _findMilestone(_milestoneId);
+        MilestoneData storage milestone = _findMilestone(_milestoneId);
         require(milestone.milestoneId == _milestoneId, "Milestone not found");
         require(milestone.status == MilestoneStatus.SUBMITTED, "Milestone not submitted");
         
@@ -316,7 +309,7 @@ contract ProcurementV2 {
         uint256 _milestoneId,
         string memory _reason
     ) external {
-        Milestone storage milestone = _findMilestone(_milestoneId);
+        MilestoneData storage milestone = _findMilestone(_milestoneId);
         require(milestone.milestoneId == _milestoneId, "Milestone not found");
         require(milestone.status == MilestoneStatus.SUBMITTED, "Milestone not submitted");
         
@@ -345,7 +338,7 @@ contract ProcurementV2 {
      * @param _milestoneId Milestone ID
      */
     function releaseMilestonePayment(uint256 _milestoneId) external {
-        Milestone storage milestone = _findMilestone(_milestoneId);
+        MilestoneData storage milestone = _findMilestone(_milestoneId);
         require(milestone.milestoneId == _milestoneId, "Milestone not found");
         require(milestone.status == MilestoneStatus.APPROVED, "Milestone not approved");
         
@@ -372,7 +365,7 @@ contract ProcurementV2 {
         // Check if project is complete
         if (payment.remainingAmount == 0) {
             projects[projectId_].completed = true;
-            projects[projectId_].status = ProjectStatus.COMPLETED;
+            projects[projectId_].status = 1; // COMPLETED
             emit ProjectCompleted(projectId_, projects[projectId_].contractorAddress, payment.paidAmount);
         }
     }
@@ -398,7 +391,7 @@ contract ProcurementV2 {
         external 
         view 
         projectExists(_projectId) 
-        returns (Milestone[] memory) 
+        returns (MilestoneData[] memory) 
     {
         return projectMilestones[_projectId];
     }
@@ -409,7 +402,7 @@ contract ProcurementV2 {
      * @notice Find milestone by ID
      * @param _milestoneId Milestone ID
      */
-    function _findMilestone(uint256 _milestoneId) internal view returns (Milestone storage) {
+    function _findMilestone(uint256 _milestoneId) internal view returns (MilestoneData storage) {
         for (uint256 i = 0; i < projectMilestones[projects[projectId - 1].projectId].length; i++) {
             if (projectMilestones[projects[projectId - 1].projectId][i].milestoneId == _milestoneId) {
                 return projectMilestones[projects[projectId - 1].projectId][i];
