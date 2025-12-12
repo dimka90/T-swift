@@ -51,3 +51,38 @@ struct Project {
     string imageCid;
     uint8 status; // 0: ACTIVE, 1: COMPLETED, 2: DISPUTED, 3: CANCELLED
 }
+
+struct ContractorReputation {
+    address contractorAddress;
+    uint256 totalProjects;
+    uint256 completedProjects;
+    uint256 totalRating; // Sum of all ratings
+    uint256 ratingCount; // Number of ratings
+    uint256 averageRating; // Calculated as (totalRating * 100) / ratingCount
+    uint256 rejectedMilestones;
+    uint256 lateDeliveries;
+    bool isVerified;
+    uint256 penaltyPoints;
+    uint256 lastUpdated;
+}
+
+struct AgencyReputation {
+    address agencyAddress;
+    uint256 totalProjects;
+    uint256 completedProjects;
+    uint256 totalRating;
+    uint256 ratingCount;
+    uint256 averageRating;
+    bool isVerified;
+    uint256 verificationLevel; // 0: UNVERIFIED, 1: BASIC, 2: ADVANCED, 3: PREMIUM
+    uint256 lastUpdated;
+}
+
+struct Rating {
+    address rater;
+    address ratee;
+    uint256 projectId;
+    uint8 score; // 1-5 stars
+    string comment;
+    uint256 timestamp;
+}
