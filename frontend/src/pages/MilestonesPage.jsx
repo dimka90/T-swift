@@ -26,9 +26,17 @@ function MilestonesPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-6">
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-4xl font-bold text-white mb-2">Project Milestones</h1>
-        <p className="text-gray-400">Track your project deliverables and payment milestones</p>
+      <div className="mb-8 flex items-center justify-between">
+        <div>
+          <h1 className="text-4xl font-bold text-white mb-2">Project Milestones</h1>
+          <p className="text-gray-400">Track your project deliverables and payment milestones</p>
+        </div>
+        <button
+          onClick={() => navigate("/milestones/submit")}
+          className="px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold rounded-lg hover:from-blue-600 hover:to-blue-700 transition shadow-lg hover:shadow-blue-500/50"
+        >
+          + Submit Milestone
+        </button>
       </div>
 
       {/* Main Content */}

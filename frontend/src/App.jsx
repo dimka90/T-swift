@@ -3,7 +3,7 @@ import AssignContract from "./pages/AssignContract";
 import Dashboard from "./pages/Dashboard";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Projects from "./pages/Projects";
-import MilestoneForm from "./components/milestone";
+import MilestoneFormPage from "./pages/MilestoneFormPage";
 import Payment from "./pages/Payment";
 import AgencyProjects from "./pages/AgencyProjects";
 import AgencyPayment from "./pages/AgencyPayment";
@@ -23,10 +23,10 @@ function App() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route element={<Layout />}>
-              <Route path="/milestoneform" element={<MilestoneForm />}/>
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/contractor-dashboard" element={<ContractorDashboard />} />
               <Route path="/milestones" element={<MilestonesPage />} />
+              <Route path="/milestones/submit" element={<MilestoneFormPage />} />
               <Route path="/projects" element={<Projects />} />
               <Route path="/payment" element={<Payment />} />
               <Route path="/agency-dashboard" element={<AgencyDashboard />} />
