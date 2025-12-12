@@ -23,7 +23,7 @@ function AgencyDashboard(){
   const [isLoadingStats, setIsLoadingStats] = useState(true);
 
   // Fetch all contractors
-  const { data: allContractors, isLoading: isLoadingContractors } = useReadContract({
+  const { data: allContractors, isLoading: isLoadingContractors, error: contractorsError } = useReadContract({
     ...wagmiContractConfig,
     functionName: "getAllContractors",
     args: [],

@@ -15,20 +15,20 @@ function ContractorSideMenu() {
     },
     {
       icon: FiFileText,
-      label: "My Projects",
-      path: "/projects",
-      description: "Assigned projects",
+      label: "Milestones",
+      path: "/milestones",
+      description: "Track milestones",
     },
     {
       icon: FiClock,
-      label: "Pending Tasks",
+      label: "Submit Work",
       path: "/milestoneform",
       description: "Submit deliverables",
     },
     {
       icon: FiCheckCircle,
       label: "Completed",
-      path: "/payment",
+      path: "/contractor-dashboard",
       description: "Completed projects",
     },
     {

@@ -49,7 +49,7 @@ function MilestoneForm() {
         autoClose: 5000,
       });
       resetForm();
-      setTimeout(() => navigate("/contractor-dashboard"), 2000);
+      setTimeout(() => navigate("/milestones"), 2000);
     }
   }, [isConfirmed, navigate]);
 

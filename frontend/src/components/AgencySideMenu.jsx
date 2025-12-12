@@ -26,12 +26,6 @@ function AgencySideMenu() {
       description: "Manage partners",
     },
     {
-      icon: FiTrendingUp,
-      label: "Projects",
-      path: "/agency-projects",
-      description: "View all projects",
-    },
-    {
       icon: FiDollarSign,
       label: "Payments",
       path: "/agency-payment",
@@ -39,9 +33,9 @@ function AgencySideMenu() {
     },
     {
       icon: FiBell,
-      label: "Notifications",
-      path: "/review",
-      description: "Submissions & alerts",
+      label: "Submissions",
+      path: "/agency-projects",
+      description: "Review submissions",
     },
   ];
 

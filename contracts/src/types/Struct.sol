@@ -44,8 +44,10 @@ struct Project {
     string description;
     uint256 budget;
     address contractorAddress;
+    address agency;
     bool completed;
     uint startDate;
     uint endDate;
     string imageCid;
+    uint8 status; // 0: ACTIVE, 1: COMPLETED, 2: DISPUTED, 3: CANCELLED
 }
