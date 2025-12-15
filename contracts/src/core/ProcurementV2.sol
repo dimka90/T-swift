@@ -11,10 +11,21 @@ import "../types/Struct.sol";
  * @dev Implements milestone-based payments and dispute resolution
  */
 contract ProcurementV2 {
+    // ============ Role Definitions ============
+    
+    bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
+    bytes32 public constant AGENCY_ROLE = keccak256("AGENCY_ROLE");
+    bytes32 public constant CONTRACTOR_ROLE = keccak256("CONTRACTOR_ROLE");
+    bytes32 public constant ARBITRATOR_ROLE = keccak256("ARBITRATOR_ROLE");
+    
     // ============ State Variables ============
     
     address public owner;
     address public tokenAddress;
+    
+    // Role management
+    mapping(address => mapping(bytes32 => bool)) private roles;
+    mapping(bytes32 => address[]) private roleMembers;
     
     // Project and contractor mappings
     mapping(uint256 => Project) public projects;
@@ -76,6 +87,18 @@ contract ProcurementV2 {
     }
     
     // ============ Events ============
+    
+    event RoleGranted(
+        bytes32 indexed role,
+        address indexed account,
+        address indexed sender
+    );
+    
+    event RoleRevoked(
+        bytes32 indexed role,
+        address indexed account,
+        address indexed sender
+    );
     
     event ProjectCreated(
         uint256 indexed projectId,
@@ -165,6 +188,31 @@ contract ProcurementV2 {
         _;
     }
     
+    modifier onlyRole(bytes32 _role) {
+        require(hasRole(_role, msg.sender), "Access denied: insufficient role");
+        _;
+    }
+    
+    modifier onlyAdmin() {
+        require(hasRole(ADMIN_ROLE, msg.sender), "Only admin can call this");
+        _;
+    }
+    
+    modifier onlyAgencyRole() {
+        require(hasRole(AGENCY_ROLE, msg.sender), "Only agency can call this");
+        _;
+    }
+    
+    modifier onlyContractorRole() {
+        require(hasRole(CONTRACTOR_ROLE, msg.sender), "Only contractor can call this");
+        _;
+    }
+    
+    modifier onlyArbitrator() {
+        require(hasRole(ARBITRATOR_ROLE, msg.sender), "Only arbitrator can call this");
+        _;
+    }
+    
     modifier projectExists(uint256 _projectId) {
         require(_projectId > 0 && _projectId < projectId, "Project does not exist");
         _;
@@ -186,6 +234,83 @@ contract ProcurementV2 {
         require(_tokenAddress != address(0), "Invalid token address");
         owner = msg.sender;
         tokenAddress = _tokenAddress;
+        
+        // Grant admin role to owner
+        _grantRole(ADMIN_ROLE, msg.sender);
+    }
+    
+    // ============ Role Management ============
+    
+    /**
+     * @notice Grant a role to an address
+     * @param _role Role identifier
+     * @param _account Address to grant role to
+     */
+    function grantRole(bytes32 _role, address _account) external onlyAdmin {
+        require(_account != address(0), "Invalid address");
+        _grantRole(_role, _account);
+    }
+    
+    /**
+     * @notice Revoke a role from an address
+     * @param _role Role identifier
+     * @param _account Address to revoke role from
+     */
+    function revokeRole(bytes32 _role, address _account) external onlyAdmin {
+        require(_account != address(0), "Invalid address");
+        _revokeRole(_role, _account);
+    }
+    
+    /**
+     * @notice Check if an address has a specific role
+     * @param _role Role identifier
+     * @param _account Address to check
+     */
+    function hasRole(bytes32 _role, address _account) public view returns (bool) {
+        return roles[_account][_role];
+    }
+    
+    /**
+     * @notice Get all members of a role
+     * @param _role Role identifier
+     */
+    function getRoleMembers(bytes32 _role) external view returns (address[] memory) {
+        return roleMembers[_role];
+    }
+    
+    /**
+     * @notice Internal function to grant role
+     * @param _role Role identifier
+     * @param _account Address to grant role to
+     */
+    function _grantRole(bytes32 _role, address _account) internal {
+        if (!roles[_account][_role]) {
+            roles[_account][_role] = true;
+            roleMembers[_role].push(_account);
+            emit RoleGranted(_role, _account, msg.sender);
+        }
+    }
+    
+    /**
+     * @notice Internal function to revoke role
+     * @param _role Role identifier
+     * @param _account Address to revoke role from
+     */
+    function _revokeRole(bytes32 _role, address _account) internal {
+        if (roles[_account][_role]) {
+            roles[_account][_role] = false;
+            
+            // Remove from roleMembers array
+            for (uint256 i = 0; i < roleMembers[_role].length; i++) {
+                if (roleMembers[_role][i] == _account) {
+                    roleMembers[_role][i] = roleMembers[_role][roleMembers[_role].length - 1];
+                    roleMembers[_role].pop();
+                    break;
+                }
+            }
+            
+            emit RoleRevoked(_role, _account, msg.sender);
+        }
     }
     
     // ============ Project Management ============
@@ -204,7 +329,7 @@ contract ProcurementV2 {
         address _contractorAddress,
         uint256 _startDate,
         uint256 _endDate
-    ) external returns (uint256) {
+    ) external onlyAgencyRole returns (uint256) {
         require(_budget > 0, "Budget must be greater than 0");
         require(_contractorAddress != address(0), "Invalid contractor address");
         require(_endDate > _startDate, "End date must be after start date");
@@ -601,7 +726,7 @@ contract ProcurementV2 {
      * @notice Verify contractor (admin only)
      * @param _contractorAddress Contractor address
      */
-    function verifyContractor(address _contractorAddress) external onlyOwner {
+    function verifyContractor(address _contractorAddress) external onlyAdmin {
         require(_contractorAddress != address(0), "Invalid address");
         contractorReputation[_contractorAddress].isVerified = true;
         emit ContractorVerified(_contractorAddress, block.timestamp);
@@ -612,7 +737,7 @@ contract ProcurementV2 {
      * @param _agencyAddress Agency address
      * @param _verificationLevel Verification level (1-3)
      */
-    function verifyAgency(address _agencyAddress, uint256 _verificationLevel) external onlyOwner {
+    function verifyAgency(address _agencyAddress, uint256 _verificationLevel) external onlyAdmin {
         require(_agencyAddress != address(0), "Invalid address");
         require(_verificationLevel >= 1 && _verificationLevel <= 3, "Invalid verification level");
         agencyReputation[_agencyAddress].isVerified = true;
@@ -630,7 +755,7 @@ contract ProcurementV2 {
         address _contractorAddress,
         uint256 _points,
         string memory _reason
-    ) external onlyOwner {
+    ) external onlyAdmin {
         require(_contractorAddress != address(0), "Invalid address");
         require(_points > 0, "Points must be greater than 0");
         
