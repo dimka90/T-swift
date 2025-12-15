@@ -479,6 +479,226 @@ contract ProcurementV2Test is Test {
         // Note: In current implementation, resubmission would need additional logic
     }
     
+    // ============ Reputation System Tests ============
+    
+    function test_RateContractor_Success() public {
+        uint256 projectId = _createAndCompleteProject();
+        
+        vm.prank(agency);
+        procurement.rateContractor(contractor, projectId, 5, "Excellent work!");
+        
+        ContractorReputation memory rep = procurement.getContractorReputation(contractor);
+        assertEq(rep.ratingCount, 1);
+        assertEq(rep.totalRating, 5);
+        assertEq(rep.averageRating, 500);
+    }
+    
+    function test_RateContractor_MultipleRatings() public {
+        uint256 projectId1 = _createAndCompleteProject();
+        
+        vm.prank(agency);
+        procurement.rateContractor(contractor, projectId1, 5, "Great!");
+        
+        uint256 projectId2 = _createAndCompleteProject();
+        
+        vm.prank(agency);
+        procurement.rateContractor(contractor, projectId2, 4, "Good work");
+        
+        ContractorReputation memory rep = procurement.getContractorReputation(contractor);
+        assertEq(rep.ratingCount, 2);
+        assertEq(rep.totalRating, 9);
+        assertEq(rep.averageRating, 450);
+    }
+    
+    function test_RateContractor_InvalidScore() public {
+        uint256 projectId = _createAndCompleteProject();
+        
+        vm.prank(agency);
+        vm.expectRevert("Score must be between 1 and 5");
+        procurement.rateContractor(contractor, projectId, 0, "Invalid");
+        
+        vm.prank(agency);
+        vm.expectRevert("Score must be between 1 and 5");
+        procurement.rateContractor(contractor, projectId, 6, "Invalid");
+    }
+    
+    function test_RateContractor_OnlyAgency() public {
+        uint256 projectId = _createAndCompleteProject();
+        
+        vm.prank(contractor);
+        vm.expectRevert("Only project agency can rate");
+        procurement.rateContractor(contractor, projectId, 5, "Test");
+    }
+    
+    function test_RateContractor_ProjectNotCompleted() public {
+        vm.prank(agency);
+        uint256 projectId = procurement.createProject(
+            "Test Project",
+            BUDGET,
+            contractor,
+            block.timestamp,
+            block.timestamp + 30 days
+        );
+        
+        vm.prank(agency);
+        vm.expectRevert("Project must be completed");
+        procurement.rateContractor(contractor, projectId, 5, "Test");
+    }
+    
+    function test_RateAgency_Success() public {
+        uint256 projectId = _createAndCompleteProject();
+        
+        vm.prank(contractor);
+        procurement.rateAgency(agency, projectId, 5, "Great agency!");
+        
+        AgencyReputation memory rep = procurement.getAgencyReputation(agency);
+        assertEq(rep.ratingCount, 1);
+        assertEq(rep.totalRating, 5);
+        assertEq(rep.averageRating, 500);
+    }
+    
+    function test_RateAgency_MultipleRatings() public {
+        uint256 projectId1 = _createAndCompleteProject();
+        
+        vm.prank(contractor);
+        procurement.rateAgency(agency, projectId1, 5, "Great!");
+        
+        uint256 projectId2 = _createAndCompleteProject();
+        
+        vm.prank(contractor);
+        procurement.rateAgency(agency, projectId2, 4, "Good");
+        
+        AgencyReputation memory rep = procurement.getAgencyReputation(agency);
+        assertEq(rep.ratingCount, 2);
+        assertEq(rep.averageRating, 450);
+    }
+    
+    function test_VerifyContractor_Success() public {
+        vm.prank(address(this));
+        procurement.verifyContractor(contractor);
+        
+        ContractorReputation memory rep = procurement.getContractorReputation(contractor);
+        assertTrue(rep.isVerified);
+    }
+    
+    function test_VerifyContractor_OnlyOwner() public {
+        vm.prank(agency);
+        vm.expectRevert("Only owner can call this");
+        procurement.verifyContractor(contractor);
+    }
+    
+    function test_VerifyAgency_Success() public {
+        vm.prank(address(this));
+        procurement.verifyAgency(agency, 2);
+        
+        AgencyReputation memory rep = procurement.getAgencyReputation(agency);
+        assertTrue(rep.isVerified);
+        assertEq(rep.verificationLevel, 2);
+    }
+    
+    function test_VerifyAgency_InvalidLevel() public {
+        vm.prank(address(this));
+        vm.expectRevert("Invalid verification level");
+        procurement.verifyAgency(agency, 0);
+        
+        vm.prank(address(this));
+        vm.expectRevert("Invalid verification level");
+        procurement.verifyAgency(agency, 4);
+    }
+    
+    function test_ApplyPenalty_Success() public {
+        vm.prank(address(this));
+        procurement.applyPenalty(contractor, 10, "Late delivery");
+        
+        ContractorReputation memory rep = procurement.getContractorReputation(contractor);
+        assertEq(rep.penaltyPoints, 10);
+    }
+    
+    function test_ApplyPenalty_Multiple() public {
+        vm.prank(address(this));
+        procurement.applyPenalty(contractor, 10, "Late delivery");
+        
+        vm.prank(address(this));
+        procurement.applyPenalty(contractor, 5, "Poor quality");
+        
+        ContractorReputation memory rep = procurement.getContractorReputation(contractor);
+        assertEq(rep.penaltyPoints, 15);
+    }
+    
+    function test_GetProjectRatings() public {
+        uint256 projectId = _createAndCompleteProject();
+        
+        vm.prank(agency);
+        procurement.rateContractor(contractor, projectId, 5, "Excellent!");
+        
+        vm.prank(contractor);
+        procurement.rateAgency(agency, projectId, 4, "Good!");
+        
+        Rating[] memory ratings = procurement.getProjectRatings(projectId);
+        assertEq(ratings.length, 2);
+        assertEq(ratings[0].score, 5);
+        assertEq(ratings[1].score, 4);
+    }
+    
+    function test_ReputationInitialization() public {
+        vm.prank(agency);
+        uint256 projectId = procurement.createProject(
+            "Test Project",
+            BUDGET,
+            contractor,
+            block.timestamp,
+            block.timestamp + 30 days
+        );
+        
+        ContractorReputation memory contractorRep = procurement.getContractorReputation(contractor);
+        assertEq(contractorRep.totalProjects, 1);
+        assertEq(contractorRep.completedProjects, 0);
+        
+        AgencyReputation memory agencyRep = procurement.getAgencyReputation(agency);
+        assertEq(agencyRep.totalProjects, 1);
+        assertEq(agencyRep.completedProjects, 0);
+    }
+    
+    function test_ReputationUpdateOnCompletion() public {
+        _createAndCompleteProject();
+        
+        ContractorReputation memory contractorRep = procurement.getContractorReputation(contractor);
+        assertEq(contractorRep.completedProjects, 1);
+        assertEq(contractorRep.totalProjects, 1);
+        
+        AgencyReputation memory agencyRep = procurement.getAgencyReputation(agency);
+        assertEq(agencyRep.completedProjects, 1);
+        assertEq(agencyRep.totalProjects, 1);
+    }
+    
+    function test_ReputationTrackRejectedMilestones() public {
+        vm.prank(agency);
+        uint256 projectId = procurement.createProject(
+            "Test Project",
+            BUDGET,
+            contractor,
+            block.timestamp,
+            block.timestamp + 30 days
+        );
+        
+        vm.prank(agency);
+        uint256 milestoneId = procurement.createMilestone(
+            projectId,
+            "Milestone 1",
+            MILESTONE_AMOUNT,
+            block.timestamp + 10 days
+        );
+        
+        vm.prank(contractor);
+        procurement.submitMilestone(milestoneId, "QmTest");
+        
+        vm.prank(agency);
+        procurement.rejectMilestone(milestoneId, "Not acceptable");
+        
+        ContractorReputation memory rep = procurement.getContractorReputation(contractor);
+        assertEq(rep.rejectedMilestones, 1);
+    }
+    
     // ============ Helper Functions ============
     
     function _createProjectAndMilestone() internal returns (uint256, uint256) {
@@ -500,5 +720,35 @@ contract ProcurementV2Test is Test {
         );
         
         return (projectId, milestoneId);
+    }
+    
+    function _createAndCompleteProject() internal returns (uint256) {
+        vm.prank(agency);
+        uint256 projectId = procurement.createProject(
+            "Test Project",
+            BUDGET,
+            contractor,
+            block.timestamp,
+            block.timestamp + 30 days
+        );
+        
+        vm.prank(agency);
+        uint256 milestoneId = procurement.createMilestone(
+            projectId,
+            "Milestone 1",
+            BUDGET,  // Use full budget for single milestone
+            block.timestamp + 10 days
+        );
+        
+        vm.prank(contractor);
+        procurement.submitMilestone(milestoneId, "QmTest");
+        
+        vm.prank(agency);
+        procurement.approveMilestone(milestoneId);
+        
+        vm.prank(agency);
+        procurement.releaseMilestonePayment(milestoneId);
+        
+        return projectId;
     }
 }

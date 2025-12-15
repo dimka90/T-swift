@@ -11,10 +11,21 @@ import "../types/Struct.sol";
  * @dev Implements milestone-based payments and dispute resolution
  */
 contract ProcurementV2 {
+    // ============ Role Definitions ============
+    
+    bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
+    bytes32 public constant AGENCY_ROLE = keccak256("AGENCY_ROLE");
+    bytes32 public constant CONTRACTOR_ROLE = keccak256("CONTRACTOR_ROLE");
+    bytes32 public constant ARBITRATOR_ROLE = keccak256("ARBITRATOR_ROLE");
+    
     // ============ State Variables ============
     
     address public owner;
     address public tokenAddress;
+    
+    // Role management
+    mapping(address => mapping(bytes32 => bool)) private roles;
+    mapping(bytes32 => address[]) private roleMembers;
     
     // Project and contractor mappings
     mapping(uint256 => Project) public projects;
@@ -29,10 +40,18 @@ contract ProcurementV2 {
     mapping(uint256 => MilestoneData[]) public projectMilestones;
     mapping(uint256 => MilestoneStatus) public milestoneStatus;
     
+    // Reputation tracking
+    mapping(address => ContractorReputation) public contractorReputation;
+    mapping(address => AgencyReputation) public agencyReputation;
+    mapping(uint256 => Rating[]) public projectRatings;
+    mapping(address => uint256[]) public contractorRatings;
+    mapping(address => uint256[]) public agencyRatings;
+    
     // Counters
     Contractor[] public contractors;
     uint256 public projectId = 1;
     uint256 public milestoneId = 1;
+    uint256 public ratingId = 1;
     
     // ============ Enums ============
     
@@ -68,6 +87,18 @@ contract ProcurementV2 {
     }
     
     // ============ Events ============
+    
+    event RoleGranted(
+        bytes32 indexed role,
+        address indexed account,
+        address indexed sender
+    );
+    
+    event RoleRevoked(
+        bytes32 indexed role,
+        address indexed account,
+        address indexed sender
+    );
     
     event ProjectCreated(
         uint256 indexed projectId,
@@ -116,10 +147,69 @@ contract ProcurementV2 {
         uint256 totalPaid
     );
     
+    event ContractorRated(
+        address indexed contractor,
+        address indexed rater,
+        uint256 indexed projectId,
+        uint8 score,
+        uint256 timestamp
+    );
+    
+    event AgencyRated(
+        address indexed agency,
+        address indexed rater,
+        uint256 indexed projectId,
+        uint8 score,
+        uint256 timestamp
+    );
+    
+    event ContractorVerified(
+        address indexed contractor,
+        uint256 timestamp
+    );
+    
+    event AgencyVerified(
+        address indexed agency,
+        uint256 verificationLevel,
+        uint256 timestamp
+    );
+    
+    event PenaltyApplied(
+        address indexed contractor,
+        uint256 points,
+        string reason,
+        uint256 timestamp
+    );
+    
     // ============ Modifiers ============
     
     modifier onlyOwner() {
         require(msg.sender == owner, "Only owner can call this");
+        _;
+    }
+    
+    modifier onlyRole(bytes32 _role) {
+        require(hasRole(_role, msg.sender), "Access denied: insufficient role");
+        _;
+    }
+    
+    modifier onlyAdmin() {
+        require(hasRole(ADMIN_ROLE, msg.sender), "Only admin can call this");
+        _;
+    }
+    
+    modifier onlyAgencyRole() {
+        require(hasRole(AGENCY_ROLE, msg.sender), "Only agency can call this");
+        _;
+    }
+    
+    modifier onlyContractorRole() {
+        require(hasRole(CONTRACTOR_ROLE, msg.sender), "Only contractor can call this");
+        _;
+    }
+    
+    modifier onlyArbitrator() {
+        require(hasRole(ARBITRATOR_ROLE, msg.sender), "Only arbitrator can call this");
         _;
     }
     
@@ -144,6 +234,83 @@ contract ProcurementV2 {
         require(_tokenAddress != address(0), "Invalid token address");
         owner = msg.sender;
         tokenAddress = _tokenAddress;
+        
+        // Grant admin role to owner
+        _grantRole(ADMIN_ROLE, msg.sender);
+    }
+    
+    // ============ Role Management ============
+    
+    /**
+     * @notice Grant a role to an address
+     * @param _role Role identifier
+     * @param _account Address to grant role to
+     */
+    function grantRole(bytes32 _role, address _account) external onlyAdmin {
+        require(_account != address(0), "Invalid address");
+        _grantRole(_role, _account);
+    }
+    
+    /**
+     * @notice Revoke a role from an address
+     * @param _role Role identifier
+     * @param _account Address to revoke role from
+     */
+    function revokeRole(bytes32 _role, address _account) external onlyAdmin {
+        require(_account != address(0), "Invalid address");
+        _revokeRole(_role, _account);
+    }
+    
+    /**
+     * @notice Check if an address has a specific role
+     * @param _role Role identifier
+     * @param _account Address to check
+     */
+    function hasRole(bytes32 _role, address _account) public view returns (bool) {
+        return roles[_account][_role];
+    }
+    
+    /**
+     * @notice Get all members of a role
+     * @param _role Role identifier
+     */
+    function getRoleMembers(bytes32 _role) external view returns (address[] memory) {
+        return roleMembers[_role];
+    }
+    
+    /**
+     * @notice Internal function to grant role
+     * @param _role Role identifier
+     * @param _account Address to grant role to
+     */
+    function _grantRole(bytes32 _role, address _account) internal {
+        if (!roles[_account][_role]) {
+            roles[_account][_role] = true;
+            roleMembers[_role].push(_account);
+            emit RoleGranted(_role, _account, msg.sender);
+        }
+    }
+    
+    /**
+     * @notice Internal function to revoke role
+     * @param _role Role identifier
+     * @param _account Address to revoke role from
+     */
+    function _revokeRole(bytes32 _role, address _account) internal {
+        if (roles[_account][_role]) {
+            roles[_account][_role] = false;
+            
+            // Remove from roleMembers array
+            for (uint256 i = 0; i < roleMembers[_role].length; i++) {
+                if (roleMembers[_role][i] == _account) {
+                    roleMembers[_role][i] = roleMembers[_role][roleMembers[_role].length - 1];
+                    roleMembers[_role].pop();
+                    break;
+                }
+            }
+            
+            emit RoleRevoked(_role, _account, msg.sender);
+        }
     }
     
     // ============ Project Management ============
@@ -162,7 +329,7 @@ contract ProcurementV2 {
         address _contractorAddress,
         uint256 _startDate,
         uint256 _endDate
-    ) external returns (uint256) {
+    ) external onlyAgencyRole returns (uint256) {
         require(_budget > 0, "Budget must be greater than 0");
         require(_contractorAddress != address(0), "Invalid contractor address");
         require(_endDate > _startDate, "End date must be after start date");
@@ -205,6 +372,41 @@ contract ProcurementV2 {
         // Map contractor to project
         contractorProjects[_contractorAddress].push(currentProjectId);
         agency_Contractor[msg.sender] = _contractorAddress;
+        
+        // Initialize reputation if not exists
+        if (contractorReputation[_contractorAddress].contractorAddress == address(0)) {
+            contractorReputation[_contractorAddress] = ContractorReputation({
+                contractorAddress: _contractorAddress,
+                totalProjects: 1,
+                completedProjects: 0,
+                totalRating: 0,
+                ratingCount: 0,
+                averageRating: 0,
+                rejectedMilestones: 0,
+                lateDeliveries: 0,
+                isVerified: false,
+                penaltyPoints: 0,
+                lastUpdated: block.timestamp
+            });
+        } else {
+            contractorReputation[_contractorAddress].totalProjects += 1;
+        }
+        
+        if (agencyReputation[msg.sender].agencyAddress == address(0)) {
+            agencyReputation[msg.sender] = AgencyReputation({
+                agencyAddress: msg.sender,
+                totalProjects: 1,
+                completedProjects: 0,
+                totalRating: 0,
+                ratingCount: 0,
+                averageRating: 0,
+                isVerified: false,
+                verificationLevel: 0,
+                lastUpdated: block.timestamp
+            });
+        } else {
+            agencyReputation[msg.sender].totalProjects += 1;
+        }
         
         emit ProjectCreated(currentProjectId, msg.sender, _contractorAddress, _budget);
         
@@ -319,14 +521,19 @@ contract ProcurementV2 {
         milestone.status = MilestoneStatus.REJECTED;
         milestoneStatus[_milestoneId] = MilestoneStatus.REJECTED;
         
+        address contractorAddr = projects[projectId_].contractorAddress;
+        
         // Track rejection
-        rejectedMilestones[projects[projectId_].contractorAddress].push(
+        rejectedMilestones[contractorAddr].push(
             RejectedMileStone({
                 projectId: projectId_,
                 milestoneId: _milestoneId,
-                contractor: projects[projectId_].contractorAddress
+                contractor: contractorAddr
             })
         );
+        
+        // Update contractor reputation
+        contractorReputation[contractorAddr].rejectedMilestones += 1;
         
         emit MilestoneRejected(_milestoneId, projectId_, msg.sender, _reason);
     }
@@ -366,7 +573,13 @@ contract ProcurementV2 {
         if (payment.remainingAmount == 0) {
             projects[projectId_].completed = true;
             projects[projectId_].status = 1; // COMPLETED
-            emit ProjectCompleted(projectId_, projects[projectId_].contractorAddress, payment.paidAmount);
+            
+            // Update reputation
+            address contractorAddr = projects[projectId_].contractorAddress;
+            contractorReputation[contractorAddr].completedProjects += 1;
+            agencyReputation[projects[projectId_].agency].completedProjects += 1;
+            
+            emit ProjectCompleted(projectId_, contractorAddr, payment.paidAmount);
         }
     }
     
@@ -396,7 +609,199 @@ contract ProcurementV2 {
         return projectMilestones[_projectId];
     }
     
+    // ============ Reputation Management ============
+    
+    /**
+     * @notice Rate a contractor after project completion
+     * @param _contractorAddress Contractor address
+     * @param _projectId Project ID
+     * @param _score Rating score (1-5)
+     * @param _comment Rating comment
+     */
+    function rateContractor(
+        address _contractorAddress,
+        uint256 _projectId,
+        uint8 _score,
+        string memory _comment
+    ) external projectExists(_projectId) {
+        require(_score >= 1 && _score <= 5, "Score must be between 1 and 5");
+        require(projects[_projectId].agency == msg.sender, "Only project agency can rate");
+        require(projects[_projectId].completed, "Project must be completed");
+        
+        // Create rating
+        Rating memory newRating = Rating({
+            rater: msg.sender,
+            ratee: _contractorAddress,
+            projectId: _projectId,
+            score: _score,
+            comment: _comment,
+            timestamp: block.timestamp
+        });
+        
+        projectRatings[_projectId].push(newRating);
+        contractorRatings[_contractorAddress].push(ratingId);
+        
+        // Update contractor reputation
+        _updateContractorReputation(_contractorAddress, _score);
+        
+        emit ContractorRated(_contractorAddress, msg.sender, _projectId, _score, block.timestamp);
+        ratingId++;
+    }
+    
+    /**
+     * @notice Rate an agency after project completion
+     * @param _agencyAddress Agency address
+     * @param _projectId Project ID
+     * @param _score Rating score (1-5)
+     * @param _comment Rating comment
+     */
+    function rateAgency(
+        address _agencyAddress,
+        uint256 _projectId,
+        uint8 _score,
+        string memory _comment
+    ) external projectExists(_projectId) {
+        require(_score >= 1 && _score <= 5, "Score must be between 1 and 5");
+        require(projects[_projectId].contractorAddress == msg.sender, "Only project contractor can rate");
+        require(projects[_projectId].completed, "Project must be completed");
+        
+        // Create rating
+        Rating memory newRating = Rating({
+            rater: msg.sender,
+            ratee: _agencyAddress,
+            projectId: _projectId,
+            score: _score,
+            comment: _comment,
+            timestamp: block.timestamp
+        });
+        
+        projectRatings[_projectId].push(newRating);
+        agencyRatings[_agencyAddress].push(ratingId);
+        
+        // Update agency reputation
+        _updateAgencyReputation(_agencyAddress, _score);
+        
+        emit AgencyRated(_agencyAddress, msg.sender, _projectId, _score, block.timestamp);
+        ratingId++;
+    }
+    
+    /**
+     * @notice Get contractor reputation
+     * @param _contractorAddress Contractor address
+     */
+    function getContractorReputation(address _contractorAddress) 
+        external 
+        view 
+        returns (ContractorReputation memory) 
+    {
+        return contractorReputation[_contractorAddress];
+    }
+    
+    /**
+     * @notice Get agency reputation
+     * @param _agencyAddress Agency address
+     */
+    function getAgencyReputation(address _agencyAddress) 
+        external 
+        view 
+        returns (AgencyReputation memory) 
+    {
+        return agencyReputation[_agencyAddress];
+    }
+    
+    /**
+     * @notice Get project ratings
+     * @param _projectId Project ID
+     */
+    function getProjectRatings(uint256 _projectId) 
+        external 
+        view 
+        projectExists(_projectId) 
+        returns (Rating[] memory) 
+    {
+        return projectRatings[_projectId];
+    }
+    
+    /**
+     * @notice Verify contractor (admin only)
+     * @param _contractorAddress Contractor address
+     */
+    function verifyContractor(address _contractorAddress) external onlyAdmin {
+        require(_contractorAddress != address(0), "Invalid address");
+        contractorReputation[_contractorAddress].isVerified = true;
+        emit ContractorVerified(_contractorAddress, block.timestamp);
+    }
+    
+    /**
+     * @notice Verify agency with verification level (admin only)
+     * @param _agencyAddress Agency address
+     * @param _verificationLevel Verification level (1-3)
+     */
+    function verifyAgency(address _agencyAddress, uint256 _verificationLevel) external onlyAdmin {
+        require(_agencyAddress != address(0), "Invalid address");
+        require(_verificationLevel >= 1 && _verificationLevel <= 3, "Invalid verification level");
+        agencyReputation[_agencyAddress].isVerified = true;
+        agencyReputation[_agencyAddress].verificationLevel = _verificationLevel;
+        emit AgencyVerified(_agencyAddress, _verificationLevel, block.timestamp);
+    }
+    
+    /**
+     * @notice Apply penalty to contractor (admin only)
+     * @param _contractorAddress Contractor address
+     * @param _points Penalty points
+     * @param _reason Penalty reason
+     */
+    function applyPenalty(
+        address _contractorAddress,
+        uint256 _points,
+        string memory _reason
+    ) external onlyAdmin {
+        require(_contractorAddress != address(0), "Invalid address");
+        require(_points > 0, "Points must be greater than 0");
+        
+        contractorReputation[_contractorAddress].penaltyPoints += _points;
+        emit PenaltyApplied(_contractorAddress, _points, _reason, block.timestamp);
+    }
+    
     // ============ Helper Functions ============
+    
+    /**
+     * @notice Update contractor reputation after rating
+     * @param _contractorAddress Contractor address
+     * @param _score Rating score
+     */
+    function _updateContractorReputation(address _contractorAddress, uint8 _score) internal {
+        ContractorReputation storage rep = contractorReputation[_contractorAddress];
+        
+        if (rep.totalRating == 0) {
+            // First rating
+            rep.contractorAddress = _contractorAddress;
+        }
+        
+        rep.totalRating += _score;
+        rep.ratingCount += 1;
+        rep.averageRating = (rep.totalRating * 100) / rep.ratingCount;
+        rep.lastUpdated = block.timestamp;
+    }
+    
+    /**
+     * @notice Update agency reputation after rating
+     * @param _agencyAddress Agency address
+     * @param _score Rating score
+     */
+    function _updateAgencyReputation(address _agencyAddress, uint8 _score) internal {
+        AgencyReputation storage rep = agencyReputation[_agencyAddress];
+        
+        if (rep.totalRating == 0) {
+            // First rating
+            rep.agencyAddress = _agencyAddress;
+        }
+        
+        rep.totalRating += _score;
+        rep.ratingCount += 1;
+        rep.averageRating = (rep.totalRating * 100) / rep.ratingCount;
+        rep.lastUpdated = block.timestamp;
+    }
     
     /**
      * @notice Find milestone by ID
