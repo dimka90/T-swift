@@ -147,6 +147,19 @@ contract ProcurementV2 {
         uint256 totalPaid
     );
     
+    event EscrowRefunded(
+        uint256 indexed projectId,
+        address indexed agency,
+        uint256 amount
+    );
+    
+    event PartialPaymentReleased(
+        uint256 indexed projectId,
+        uint256 indexed milestoneId,
+        address indexed contractor,
+        uint256 amount
+    );
+    
     event ContractorRated(
         address indexed contractor,
         address indexed rater,
@@ -542,22 +555,24 @@ contract ProcurementV2 {
     
     /**
      * @notice Release payment for approved milestone
+     * @dev Transfers funds from escrow to contractor
      * @param _milestoneId Milestone ID
      */
-    function releaseMilestonePayment(uint256 _milestoneId) external {
+    function releaseMilestonePayment(uint256 _milestoneId) external onlyAgencyRole {
         MilestoneData storage milestone = _findMilestone(_milestoneId);
         require(milestone.milestoneId == _milestoneId, "Milestone not found");
         require(milestone.status == MilestoneStatus.APPROVED, "Milestone not approved");
         
         uint256 projectId_ = milestone.projectId;
-        require(projects[projectId_].agency == msg.sender, "Only agency can release payment");
+        require(projects[projectId_].agency == msg.sender, "Only project agency can release payment");
         
         Payment storage payment = projectPayments[projectId_];
-        require(payment.remainingAmount >= milestone.amount, "Insufficient funds");
+        require(payment.remainingAmount >= milestone.amount, "Insufficient funds in escrow");
         
         // Update payment tracking
         payment.paidAmount += milestone.amount;
         payment.remainingAmount -= milestone.amount;
+        payment.releaseTime = block.timestamp;
         milestone.status = MilestoneStatus.PAID;
         milestoneStatus[_milestoneId] = MilestoneStatus.PAID;
         
@@ -571,16 +586,67 @@ contract ProcurementV2 {
         
         // Check if project is complete
         if (payment.remainingAmount == 0) {
-            projects[projectId_].completed = true;
-            projects[projectId_].status = 1; // COMPLETED
-            
-            // Update reputation
-            address contractorAddr = projects[projectId_].contractorAddress;
-            contractorReputation[contractorAddr].completedProjects += 1;
-            agencyReputation[projects[projectId_].agency].completedProjects += 1;
-            
-            emit ProjectCompleted(projectId_, contractorAddr, payment.paidAmount);
+            _completeProject(projectId_);
         }
+    }
+    
+    /**
+     * @notice Release partial payment for milestone (for partial approvals)
+     * @param _milestoneId Milestone ID
+     * @param _amount Amount to release
+     */
+    function releasePartialPayment(uint256 _milestoneId, uint256 _amount) external onlyAgencyRole {
+        MilestoneData storage milestone = _findMilestone(_milestoneId);
+        require(milestone.milestoneId == _milestoneId, "Milestone not found");
+        require(milestone.status == MilestoneStatus.APPROVED, "Milestone not approved");
+        require(_amount > 0 && _amount <= milestone.amount, "Invalid amount");
+        
+        uint256 projectId_ = milestone.projectId;
+        require(projects[projectId_].agency == msg.sender, "Only project agency can release payment");
+        
+        Payment storage payment = projectPayments[projectId_];
+        require(payment.remainingAmount >= _amount, "Insufficient funds in escrow");
+        
+        // Update payment tracking
+        payment.paidAmount += _amount;
+        payment.remainingAmount -= _amount;
+        payment.releaseTime = block.timestamp;
+        
+        // Transfer tokens to contractor
+        require(
+            ITOKEN(tokenAddress).transfer(projects[projectId_].contractorAddress, _amount),
+            "Payment transfer failed"
+        );
+        
+        emit PaymentReleased(projectId_, _milestoneId, projects[projectId_].contractorAddress, _amount);
+        
+        // Check if project is complete
+        if (payment.remainingAmount == 0) {
+            _completeProject(projectId_);
+        }
+    }
+    
+    /**
+     * @notice Refund remaining escrow balance to agency (for cancelled projects)
+     * @param _projectId Project ID
+     */
+    function refundEscrow(uint256 _projectId) external projectExists(_projectId) onlyAgencyRole {
+        require(projects[_projectId].agency == msg.sender, "Only project agency can refund");
+        require(!projects[_projectId].completed, "Cannot refund completed project");
+        
+        Payment storage payment = projectPayments[_projectId];
+        require(payment.remainingAmount > 0, "No funds to refund");
+        
+        uint256 refundAmount = payment.remainingAmount;
+        payment.remainingAmount = 0;
+        
+        // Transfer remaining tokens back to agency
+        require(
+            ITOKEN(tokenAddress).transfer(msg.sender, refundAmount),
+            "Refund transfer failed"
+        );
+        
+        emit EscrowRefunded(_projectId, msg.sender, refundAmount);
     }
     
     /**
@@ -597,6 +663,30 @@ contract ProcurementV2 {
     }
     
     /**
+     * @notice Get payment history for a project
+     * @param _projectId Project ID
+     */
+    function getPaymentHistory(uint256 _projectId)
+        external
+        view
+        projectExists(_projectId)
+        returns (
+            uint256 totalAmount,
+            uint256 paidAmount,
+            uint256 remainingAmount,
+            uint256 releaseTime
+        )
+    {
+        Payment memory payment = projectPayments[_projectId];
+        return (
+            payment.totalAmount,
+            payment.paidAmount,
+            payment.remainingAmount,
+            payment.releaseTime
+        );
+    }
+    
+    /**
      * @notice Get project milestones
      * @param _projectId Project ID
      */
@@ -607,6 +697,48 @@ contract ProcurementV2 {
         returns (MilestoneData[] memory) 
     {
         return projectMilestones[_projectId];
+    }
+    
+    /**
+     * @notice Get milestone payment details
+     * @param _milestoneId Milestone ID
+     */
+    function getMilestonePaymentDetails(uint256 _milestoneId)
+        external
+        view
+        returns (
+            uint256 amount,
+            uint256 dueDate,
+            uint8 status,
+            uint256 submittedAt,
+            uint256 approvedAt
+        )
+    {
+        MilestoneData memory milestone = _findMilestone(_milestoneId);
+        return (
+            milestone.amount,
+            milestone.dueDate,
+            uint8(milestone.status),
+            milestone.submittedAt,
+            milestone.approvedAt
+        );
+    }
+    
+    /**
+     * @notice Internal function to complete project
+     * @param _projectId Project ID
+     */
+    function _completeProject(uint256 _projectId) internal {
+        projects[_projectId].completed = true;
+        projects[_projectId].status = 1; // COMPLETED
+        
+        // Update reputation
+        address contractorAddr = projects[_projectId].contractorAddress;
+        contractorReputation[contractorAddr].completedProjects += 1;
+        agencyReputation[projects[_projectId].agency].completedProjects += 1;
+        
+        Payment memory payment = projectPayments[_projectId];
+        emit ProjectCompleted(_projectId, contractorAddr, payment.paidAmount);
     }
     
     // ============ Reputation Management ============

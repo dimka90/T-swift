@@ -86,3 +86,4 @@ struct Rating {
     string comment;
     uint256 timestamp;
 }
+
