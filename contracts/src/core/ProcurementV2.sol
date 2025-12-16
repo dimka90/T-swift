@@ -23,6 +23,10 @@ contract ProcurementV2 {
     address public owner;
     address public tokenAddress;
     
+    // Security
+    uint256 private locked; // Reentrancy guard
+    bool public paused; // Emergency pause
+    
     // Role management
     mapping(address => mapping(bytes32 => bool)) private roles;
     mapping(bytes32 => address[]) private roleMembers;
@@ -194,10 +198,45 @@ contract ProcurementV2 {
         uint256 timestamp
     );
     
+    event ContractPaused(
+        address indexed by,
+        uint256 timestamp,
+        string reason
+    );
+    
+    event ContractUnpaused(
+        address indexed by,
+        uint256 timestamp
+    );
+    
+    event SecurityAlert(
+        string indexed alertType,
+        address indexed account,
+        uint256 timestamp,
+        string details
+    );
+    
     // ============ Modifiers ============
     
     modifier onlyOwner() {
         require(msg.sender == owner, "Only owner can call this");
+        _;
+    }
+    
+    modifier nonReentrant() {
+        require(locked == 0, "No reentrancy");
+        locked = 1;
+        _;
+        locked = 0;
+    }
+    
+    modifier whenNotPaused() {
+        require(!paused, "Contract is paused");
+        _;
+    }
+    
+    modifier whenPaused() {
+        require(paused, "Contract is not paused");
         _;
     }
     
@@ -326,6 +365,35 @@ contract ProcurementV2 {
         }
     }
     
+    // ============ Emergency & Security Functions ============
+    
+    /**
+     * @notice Pause contract in case of emergency
+     * @param _reason Reason for pausing
+     */
+    function pauseContract(string memory _reason) external onlyAdmin {
+        require(!paused, "Contract already paused");
+        paused = true;
+        emit ContractPaused(msg.sender, block.timestamp, _reason);
+        emit SecurityAlert("CONTRACT_PAUSED", msg.sender, block.timestamp, _reason);
+    }
+    
+    /**
+     * @notice Unpause contract after emergency
+     */
+    function unpauseContract() external onlyAdmin {
+        require(paused, "Contract is not paused");
+        paused = false;
+        emit ContractUnpaused(msg.sender, block.timestamp);
+    }
+    
+    /**
+     * @notice Check if contract is paused
+     */
+    function isPaused() external view returns (bool) {
+        return paused;
+    }
+    
     // ============ Project Management ============
     
     /**
@@ -342,10 +410,16 @@ contract ProcurementV2 {
         address _contractorAddress,
         uint256 _startDate,
         uint256 _endDate
-    ) external onlyAgencyRole returns (uint256) {
+    ) external onlyAgencyRole whenNotPaused nonReentrant returns (uint256) {
+        // Input validation
         require(_budget > 0, "Budget must be greater than 0");
+        require(_budget <= 10000000e18, "Budget exceeds maximum limit"); // 10M cUSD max
         require(_contractorAddress != address(0), "Invalid contractor address");
+        require(msg.sender != _contractorAddress, "Agency cannot be contractor");
         require(_endDate > _startDate, "End date must be after start date");
+        require(_endDate <= block.timestamp + 365 days, "End date too far in future");
+        require(bytes(_description).length > 0, "Description cannot be empty");
+        require(bytes(_description).length <= 1000, "Description too long");
         
         // Check allowance
         uint256 allowance = ITOKEN(tokenAddress).allowance(msg.sender, address(this));
@@ -558,7 +632,7 @@ contract ProcurementV2 {
      * @dev Transfers funds from escrow to contractor
      * @param _milestoneId Milestone ID
      */
-    function releaseMilestonePayment(uint256 _milestoneId) external onlyAgencyRole {
+    function releaseMilestonePayment(uint256 _milestoneId) external onlyAgencyRole whenNotPaused nonReentrant {
         MilestoneData storage milestone = _findMilestone(_milestoneId);
         require(milestone.milestoneId == _milestoneId, "Milestone not found");
         require(milestone.status == MilestoneStatus.APPROVED, "Milestone not approved");
@@ -595,7 +669,7 @@ contract ProcurementV2 {
      * @param _milestoneId Milestone ID
      * @param _amount Amount to release
      */
-    function releasePartialPayment(uint256 _milestoneId, uint256 _amount) external onlyAgencyRole {
+    function releasePartialPayment(uint256 _milestoneId, uint256 _amount) external onlyAgencyRole whenNotPaused nonReentrant {
         MilestoneData storage milestone = _findMilestone(_milestoneId);
         require(milestone.milestoneId == _milestoneId, "Milestone not found");
         require(milestone.status == MilestoneStatus.APPROVED, "Milestone not approved");
@@ -630,7 +704,7 @@ contract ProcurementV2 {
      * @notice Refund remaining escrow balance to agency (for cancelled projects)
      * @param _projectId Project ID
      */
-    function refundEscrow(uint256 _projectId) external projectExists(_projectId) onlyAgencyRole {
+    function refundEscrow(uint256 _projectId) external projectExists(_projectId) onlyAgencyRole whenNotPaused nonReentrant {
         require(projects[_projectId].agency == msg.sender, "Only project agency can refund");
         require(!projects[_projectId].completed, "Cannot refund completed project");
         
